@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"time"
 )
 
 // Contains the current charge states that exist within the vehicle
@@ -182,7 +183,7 @@ type VehicleState struct {
 // Represents the request to get the states of the vehicle
 type StateRequest struct {
 	Response struct {
-		Timestamp int64 `json:"timestamp"`
+		Timestamp time.Time `json:"timestamp"`
 		*ChargeState
 		*ClimateState
 		*DriveState
