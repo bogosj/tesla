@@ -2,7 +2,6 @@ package tesla
 
 import (
 	"strconv"
-	"time"
 )
 
 // Represents the vehicle as returned from the Tesla API
