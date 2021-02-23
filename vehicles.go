@@ -52,7 +52,7 @@ type VehicleConfig struct {
 	SpoilerType                 string    `json:"spoiler_type"`
 	SunRoofInstalled            int       `json:"sun_roof_installed"`
 	ThirdRowSeats               string    `json:"third_row_seats"`
-	Timestamp                   time.Time `json:"timestamp"`
+	Timestamp                   int64     `json:"timestamp"`
 	TrimBadging                 string    `json:"trim_badging"`
 	UseRangeBadging             bool      `json:"use_range_badging"`
 	WheelType                   string    `json:"wheel_type"`
