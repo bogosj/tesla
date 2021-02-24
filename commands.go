@@ -85,9 +85,9 @@ func (v *Vehicle) EnableSentry() error {
 // 	return err
 // }
 
-// Opens and closes the configured Homelink garage door of the vehicle
+// TriggerHomelink opens and closes the configured Homelink garage door of the vehicle
 // keep in mind this is a toggle and the garage door state is unknown
-// a major limitation of Homelink
+// a major limitation of Homelink.
 func (v Vehicle) TriggerHomelink() error {
 	apiUrl := v.c.BaseURL + "/vehicles/" + strconv.FormatInt(v.ID, 10) + "/command/trigger_homelink"
 	driveState, _ := v.DriveState()
