@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// Response from the Tesla API after POSTing a command
+// CommandResponse is the response from the Tesla API after POSTing a command.
 type CommandResponse struct {
 	Response struct {
 		Reason string `json:"reason"`
@@ -14,8 +14,7 @@ type CommandResponse struct {
 	} `json:"response"`
 }
 
-// Required elements to POST an Autopark/Summon request
-// for the vehicle
+// AutoParkRequest are the required elements to POST an Autopark/Summon request for the vehicle.
 type AutoParkRequest struct {
 	VehicleID uint64  `json:"vehicle_id,omitempty"`
 	Lat       float64 `json:"lat"`
@@ -23,21 +22,22 @@ type AutoParkRequest struct {
 	Action    string  `json:"action,omitempty"`
 }
 
+// SentryData shows whether Sentry is on.
 type SentryData struct {
 	Mode string `json:"on"`
 }
 
-// Causes the vehicle to abort the Autopark request
+// AutoparkAbort causes the vehicle to abort the Autopark request.
 func (v Vehicle) AutoparkAbort() error {
 	return v.autoPark("abort")
 }
 
-// Causes the vehicle to pull forward
+// AutoparkForward causes the vehicle to pull forward.
 func (v Vehicle) AutoparkForward() error {
 	return v.autoPark("start_forward")
 }
 
-// Causes the vehicle to go in reverse
+// AutoparkReverse causes the vehicle to go in reverse.
 func (v Vehicle) AutoparkReverse() error {
 	return v.autoPark("start_reverse")
 }
@@ -58,7 +58,7 @@ func (v Vehicle) autoPark(action string) error {
 	return err
 }
 
-// Enables Sentry Mode
+// EnableSentry enables Sentry Mode
 func (v *Vehicle) EnableSentry() error {
 	apiUrl := v.c.BaseURL + "/vehicles/" + strconv.FormatInt(v.ID, 10) + "/command/set_sentry_mode"
 	sentryRequest := &SentryData{
