@@ -70,7 +70,7 @@ func readStream(resp *http.Response, eventChan chan *StreamEvent, errChan chan e
 	errChan <- errors.New("HTTP stream closed")
 }
 
-// Parses the stream event, setting all of the appropriate data types
+// Parses the stream event, setting all of the appropriate data types.
 func parseStreamEvent(event string) (*StreamEvent, error) {
 	data := strings.Split(event, ",")
 	if len(data) != 13 {
