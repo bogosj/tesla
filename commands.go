@@ -101,7 +101,7 @@ func (v Vehicle) TriggerHomelink() error {
 	return err
 }
 
-// Wakes up the vehicle when it is powered off
+// Wakeup wakes up the vehicle when it is powered off.
 func (v Vehicle) Wakeup() (*Vehicle, error) {
 	apiUrl := v.c.BaseURL + "/vehicles/" + strconv.FormatInt(v.ID, 10) + "/wake_up"
 	body, err := v.sendCommand(apiUrl, nil)
