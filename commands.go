@@ -199,7 +199,7 @@ type tempRequest struct {
 }
 
 // SetTemperature sets the temperature of the vehicle, where you may set the driver
-// zone and the passenger zone to seperate temperatures.
+// zone and the passenger zone to separate temperatures.
 func (v Vehicle) SetTemperature(driver float64, passenger float64) error {
 	driveTemp := strconv.FormatFloat(driver, 'f', -1, 32)
 	passengerTemp := strconv.FormatFloat(passenger, 'f', -1, 32)
