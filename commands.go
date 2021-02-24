@@ -115,7 +115,7 @@ func (v Vehicle) Wakeup() (*Vehicle, error) {
 	return vehicleResponse.Response, nil
 }
 
-// Opens the charge port so you may insert your charging cable
+// Opens the charge port so you may insert your charging cable.
 func (v Vehicle) OpenChargePort() error {
 	apiUrl := v.c.BaseURL + "/vehicles/" + strconv.FormatInt(v.ID, 10) + "/command/charge_port_door_open"
 	_, err := v.sendCommand(apiUrl, nil)
