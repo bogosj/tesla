@@ -28,7 +28,7 @@ type Client struct {
 }
 
 // NewClient creates a new client for the Tesla API with a provided OAuth token.
-func NewClient(ctx context.Context, tok *oauth2.Token) (*Client, error) {
+func NewClient(ctx context.Context, tok *oauth2.Token) *Client {
 	config := &oauth2.Config{
 		ClientID:    "ownerapi",
 		RedirectURL: "https://auth.tesla.com/void/callback",
@@ -41,7 +41,7 @@ func NewClient(ctx context.Context, tok *oauth2.Token) (*Client, error) {
 		StreamingURL: StreamingURL,
 		hc:           config.Client(ctx, tok),
 	}
-	return client, nil
+	return client
 }
 
 func loadToken(path string) (*oauth2.Token, error) {
@@ -62,11 +62,7 @@ func NewClientFromTokenFile(ctx context.Context, path string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	c, err := NewClient(ctx, t)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return NewClient(ctx, t), nil
 }
 
 // Calls an HTTP GET
