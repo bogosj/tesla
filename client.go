@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 
 	"golang.org/x/oauth2"
 )
@@ -45,7 +46,7 @@ func NewClient(ctx context.Context, tok *oauth2.Token) (*Client, error) {
 }
 
 func loadToken(path string) (*oauth2.Token, error) {
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +105,7 @@ func (c Client) processRequest(req *http.Request) ([]byte, error) {
 		return nil, errors.New(res.Status)
 	}
 	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
