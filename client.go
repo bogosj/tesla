@@ -25,9 +25,62 @@ type Client struct {
 	BaseURL      string
 	StreamingURL string
 	hc           *http.Client
+	token        *oauth2.Token
+}
+
+// WithToken provides an oauth2.Token to the client for auth.
+func WithToken(t *oauth2.Token) func(c *Client) error {
+	return func(c *Client) error {
+		c.token = t
+		return nil
+	}
+}
+
+// WithTokenFile reads a JSON serialized oauth2.Token struct from disk and provides it
+// to the client for auth.
+func WithTokenFile(path string) func(c *Client) error {
+	t, err := loadToken(path)
+	if err != nil {
+		return func(c *Client) error {
+			return err
+		}
+	}
+	return WithToken(t)
+}
+
+// New creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
+// functional options to initialize the client with an OAuth token.
+func New(ctx context.Context, options ...func(*Client) error) (*Client, error) {
+	config := &oauth2.Config{
+		ClientID:    "ownerapi",
+		RedirectURL: "https://auth.tesla.com/void/callback",
+		Endpoint:    Endpoint,
+		Scopes:      []string{"openid", "email", "offline_access"},
+	}
+
+	client := &Client{
+		BaseURL:      BaseURL,
+		StreamingURL: StreamingURL,
+	}
+
+	for _, option := range options {
+		err := option(client)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if client.token == nil {
+		return nil, errors.New("an OAuth2 token must be provided")
+	}
+
+	client.hc = config.Client(ctx, client.token)
+
+	return client, nil
 }
 
 // NewClient creates a new client for the Tesla API with a provided OAuth token.
+// Deprecated: Use New with function options. This function will be removed before v1.0.
 func NewClient(ctx context.Context, tok *oauth2.Token) (*Client, error) {
 	config := &oauth2.Config{
 		ClientID:    "ownerapi",
@@ -57,6 +110,7 @@ func loadToken(path string) (*oauth2.Token, error) {
 }
 
 // NewClientFromTokenFile creates a new client for the Tesla API using a JSON serialized token from disk.
+// Deprecated: Use New with function options. This function will be removed before v1.0.
 func NewClientFromTokenFile(ctx context.Context, path string) (*Client, error) {
 	t, err := loadToken(path)
 	if err != nil {
