@@ -28,8 +28,10 @@ type Client struct {
 	token        *oauth2.Token
 }
 
+type ClientOption func(c *Client) error
+
 // WithToken provides an oauth2.Token to the client for auth.
-func WithToken(t *oauth2.Token) func(c *Client) error {
+func WithToken(t *oauth2.Token) ClientOption {
 	return func(c *Client) error {
 		c.token = t
 		return nil
@@ -38,7 +40,7 @@ func WithToken(t *oauth2.Token) func(c *Client) error {
 
 // WithTokenFile reads a JSON serialized oauth2.Token struct from disk and provides it
 // to the client for auth.
-func WithTokenFile(path string) func(c *Client) error {
+func WithTokenFile(path string) ClientOption {
 	t, err := loadToken(path)
 	if err != nil {
 		return func(c *Client) error {
@@ -50,7 +52,7 @@ func WithTokenFile(path string) func(c *Client) error {
 
 // New creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
 // functional options to initialize the client with an OAuth token.
-func New(ctx context.Context, options ...func(*Client) error) (*Client, error) {
+func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	config := &oauth2.Config{
 		ClientID:    "ownerapi",
 		RedirectURL: "https://auth.tesla.com/void/callback",
@@ -79,24 +81,6 @@ func New(ctx context.Context, options ...func(*Client) error) (*Client, error) {
 	return client, nil
 }
 
-// NewClient creates a new client for the Tesla API with a provided OAuth token.
-// Deprecated: Use New with function options. This function will be removed before v1.0.
-func NewClient(ctx context.Context, tok *oauth2.Token) (*Client, error) {
-	config := &oauth2.Config{
-		ClientID:    "ownerapi",
-		RedirectURL: "https://auth.tesla.com/void/callback",
-		Endpoint:    Endpoint,
-		Scopes:      []string{"openid", "email", "offline_access"},
-	}
-
-	client := &Client{
-		BaseURL:      BaseURL,
-		StreamingURL: StreamingURL,
-		hc:           config.Client(ctx, tok),
-	}
-	return client, nil
-}
-
 func loadToken(path string) (*oauth2.Token, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -107,20 +91,6 @@ func loadToken(path string) (*oauth2.Token, error) {
 		return nil, err
 	}
 	return tok, nil
-}
-
-// NewClientFromTokenFile creates a new client for the Tesla API using a JSON serialized token from disk.
-// Deprecated: Use New with function options. This function will be removed before v1.0.
-func NewClientFromTokenFile(ctx context.Context, path string) (*Client, error) {
-	t, err := loadToken(path)
-	if err != nil {
-		return nil, err
-	}
-	c, err := NewClient(ctx, t)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
 }
 
 // Calls an HTTP GET
