@@ -11,14 +11,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Endpoint is the OAuth2 endpoint for authenticating with the Tesla API.
-var Endpoint = oauth2.Endpoint{
-	AuthURL:  "https://auth.tesla.com/oauth2/v3/authorize",
-	TokenURL: "https://auth.tesla.com/oauth2/v3/token",
+// DefaultOAuth2Config is the OAuth2 configuration for authenticating with the Tesla API.
+var DefaultOAuth2Config = &oauth2.Config{
+	ClientID:    "ownerapi",
+	RedirectURL: "https://auth.tesla.com/void/callback",
+	Endpoint: oauth2.Endpoint{
+		AuthURL:  "https://auth.tesla.com/oauth2/v3/authorize",
+		TokenURL: "https://auth.tesla.com/oauth2/v3/token",
+	},
+	Scopes: []string{"openid", "email", "offline_access"},
 }
-
-// BaseURL is the base URL of the standard Tesla API.
-const BaseURL = "https://owner-api.teslamotors.com/api/1"
 
 // Client provides the client and associated elements for interacting with the Tesla API.
 type Client struct {
@@ -50,19 +52,32 @@ func WithTokenFile(path string) ClientOption {
 	return WithToken(t)
 }
 
+// WithBaseURL provides a method to set the base URL for standard API calls to differ
+// from the default.
+func WithBaseURL(url string) ClientOption {
+	return func(c *Client) error {
+		c.BaseURL = url
+		return nil
+	}
+}
+
+// WithStreamingURL provides a method to set the base URL for streaming API calls to differ
+// from the default.
+func WithStreamingURL(url string) ClientOption {
+	return func(c *Client) error {
+		c.StreamingURL = url
+		return nil
+	}
+}
+
 // New creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
 // functional options to initialize the client with an OAuth token.
 func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
-	config := &oauth2.Config{
-		ClientID:    "ownerapi",
-		RedirectURL: "https://auth.tesla.com/void/callback",
-		Endpoint:    Endpoint,
-		Scopes:      []string{"openid", "email", "offline_access"},
-	}
+	config := DefaultOAuth2Config
 
 	client := &Client{
-		BaseURL:      BaseURL,
-		StreamingURL: StreamingURL,
+		BaseURL:      "https://owner-api.teslamotors.com/api/1",
+		StreamingURL: "https://streaming.vn.teslamotors.com",
 	}
 
 	for _, option := range options {

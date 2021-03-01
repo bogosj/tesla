@@ -12,9 +12,6 @@ import (
 var (
 	// StreamParams are all of the parameters requested from the streaming API.
 	StreamParams = "speed,odometer,soc,elevation,est_heading,est_lat,est_lng,power,shift_state,range,est_range,heading"
-
-	// StreamingURL is the base URL of the streaming API.
-	StreamingURL = "https://streaming.vn.teslamotors.com"
 )
 
 // StreamEvent is the event returned by the vehicle by the Tesla API.
