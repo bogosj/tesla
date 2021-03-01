@@ -24,8 +24,8 @@ var DefaultOAuth2Config = &oauth2.Config{
 
 // Client provides the client and associated elements for interacting with the Tesla API.
 type Client struct {
-	BaseURL      string
-	StreamingURL string
+	baseURL      string
+	streamingURL string
 	hc           *http.Client
 	oc           *oauth2.Config
 	token        *oauth2.Token
@@ -57,7 +57,7 @@ func WithTokenFile(path string) ClientOption {
 // from the default.
 func WithBaseURL(url string) ClientOption {
 	return func(c *Client) error {
-		c.BaseURL = url
+		c.baseURL = url
 		return nil
 	}
 }
@@ -66,7 +66,7 @@ func WithBaseURL(url string) ClientOption {
 // from the default.
 func WithStreamingURL(url string) ClientOption {
 	return func(c *Client) error {
-		c.StreamingURL = url
+		c.streamingURL = url
 		return nil
 	}
 }
@@ -83,8 +83,8 @@ func WithOAuth2Config(oc *oauth2.Config) ClientOption {
 // functional options to initialize the client with an OAuth token.
 func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	client := &Client{
-		BaseURL:      "https://owner-api.teslamotors.com/api/1",
-		StreamingURL: "https://streaming.vn.teslamotors.com",
+		baseURL:      "https://owner-api.teslamotors.com/api/1",
+		streamingURL: "https://streaming.vn.teslamotors.com",
 		oc:           DefaultOAuth2Config,
 	}
 
