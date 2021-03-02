@@ -16,7 +16,6 @@ import (
 
 	"github.com/bogosj/tesla"
 	"github.com/manifoldco/promptui"
-	"golang.org/x/oauth2"
 )
 
 const (
@@ -43,7 +42,7 @@ func pkce() (verifier, challenge string, err error) {
 	return verifier, challenge, nil
 }
 
-func selectDevice(ctx context.Context, devices []device) (d device, passcode string, err error) {
+func selectDevice(ctx context.Context, devices []tesla.Device) (d tesla.Device, passcode string, err error) {
 	var i int
 	if len(devices) > 1 {
 		var err error
@@ -53,7 +52,7 @@ func selectDevice(ctx context.Context, devices []device) (d device, passcode str
 			Pointer: promptui.PipeCursor,
 		}).Run()
 		if err != nil {
-			return device{}, "", fmt.Errorf("select device: %w", err)
+			return tesla.Device{}, "", fmt.Errorf("select device: %w", err)
 		}
 	}
 	d = devices[i]
@@ -69,7 +68,7 @@ func selectDevice(ctx context.Context, devices []device) (d device, passcode str
 		},
 	}).Run()
 	if err != nil {
-		return device{}, "", err
+		return tesla.Device{}, "", err
 	}
 	return d, passcode, nil
 }
@@ -122,30 +121,15 @@ func login(ctx context.Context) error {
 		log.Fatal(err)
 	}
 
-	verifier, challenge, err := pkce()
-	if err != nil {
-		return fmt.Errorf("pkce: %w", err)
-	}
-
-	c := tesla.DefaultOAuth2Config
-
-	code, err := (&auth{
-		AuthURL: c.AuthCodeURL(state(), oauth2.AccessTypeOffline,
-			oauth2.SetAuthURLParam("code_challenge", challenge),
-			oauth2.SetAuthURLParam("code_challenge_method", "S256"),
-		),
-		SelectDevice: selectDevice,
-	}).Do(ctx, username, password)
+	client, err := tesla.NewClient(
+		context.Background(),
+		tesla.WithCredentials(username, password),
+	)
 	if err != nil {
 		return err
 	}
 
-	t, err := c.Exchange(ctx, code,
-		oauth2.SetAuthURLParam("code_verifier", verifier),
-	)
-	if err != nil {
-		return fmt.Errorf("exchange: %w", err)
-	}
+	t := client.Token()
 
 	w := os.Stdout
 	switch out := *out; out {

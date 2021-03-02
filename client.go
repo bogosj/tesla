@@ -29,6 +29,7 @@ type Client struct {
 	hc           *http.Client
 	oc           *oauth2.Config
 	token        *oauth2.Token
+	authHandler  *auth
 }
 
 // New creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
@@ -54,6 +55,10 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	client.hc = client.oc.Client(ctx, client.token)
 
 	return client, nil
+}
+
+func (c Client) Token() *oauth2.Token {
+	return c.token
 }
 
 // Calls an HTTP GET
