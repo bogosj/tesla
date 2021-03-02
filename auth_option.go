@@ -43,7 +43,7 @@ func authHandler() *auth {
 func WithMFAHandler(handler func(context.Context, []Device) (Device, string, error)) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = &auth{}
+			c.authHandler = authHandler()
 		}
 		c.authHandler.SelectDevice = handler
 		return nil
@@ -58,9 +58,7 @@ func mfaUnsupported(_ context.Context, _ []Device) (Device, string, error) {
 func WithCredentials(username, password string) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = &auth{
-				SelectDevice: mfaUnsupported,
-			}
+			c.authHandler = authHandler()
 		}
 
 		verifier, challenge, err := pkce()
