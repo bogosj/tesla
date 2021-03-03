@@ -62,9 +62,11 @@ func (c *authHandler) login(ctx context.Context, oc *oauth2.Config) (*oauth2.Tok
 	return token, err
 }
 
-func defaultAuth() *auth {
-	return &auth{
-		SelectDevice: mfaUnsupported,
+func defaultHandler() *authHandler {
+	return &authHandler{
+		auth: &auth{
+			SelectDevice: mfaUnsupported,
+		},
 	}
 }
 
@@ -72,7 +74,7 @@ func defaultAuth() *auth {
 func WithMFAHandler(handler func(context.Context, []Device) (Device, string, error)) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = &authHandler{auth: defaultAuth()}
+			c.authHandler = defaultHandler()
 		}
 
 		c.authHandler.auth.SelectDevice = handler
@@ -88,7 +90,7 @@ func mfaUnsupported(_ context.Context, _ []Device) (Device, string, error) {
 func WithCredentials(username, password string) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = &authHandler{auth: defaultAuth()}
+			c.authHandler = defaultHandler()
 		}
 
 		c.authHandler.username = username
