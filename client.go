@@ -29,10 +29,10 @@ type Client struct {
 	hc           *http.Client
 	oc           *oauth2.Config
 	token        *oauth2.Token
-	authHandler  *auth
+	authHandler  *authHandler
 }
 
-// New creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
+// NewClient creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
 // functional options to initialize the client with an OAuth token.
 func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	client := &Client{
@@ -48,6 +48,23 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 		}
 	}
 
+	// perform login if configured
+	if client.authHandler != nil {
+		if client.token != nil {
+			return nil, errors.New("cannot have token and authorization options both")
+		}
+
+		var err error
+		client.token, err = client.authHandler.login(ctx, client.oc)
+
+		if err != nil {
+			return nil, err
+		}
+
+		// wipe credentials
+		client.authHandler = nil
+	}
+
 	if client.token == nil {
 		return nil, errors.New("an OAuth2 token must be provided")
 	}
@@ -57,6 +74,7 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	return client, nil
 }
 
+// Token returns the OAuth2 token
 func (c Client) Token() *oauth2.Token {
 	return c.token
 }

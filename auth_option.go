@@ -33,7 +33,36 @@ func pkce() (verifier, challenge string, err error) {
 	return verifier, challenge, nil
 }
 
-func authHandler() *auth {
+type authHandler struct {
+	auth     *auth
+	username string
+	password string
+}
+
+func (c *authHandler) login(ctx context.Context, oc *oauth2.Config) (*oauth2.Token, error) {
+	verifier, challenge, err := pkce()
+	if err != nil {
+		return nil, err
+	}
+
+	c.auth.AuthURL = oc.AuthCodeURL(state(), oauth2.AccessTypeOffline,
+		oauth2.SetAuthURLParam("code_challenge", challenge),
+		oauth2.SetAuthURLParam("code_challenge_method", "S256"),
+	)
+
+	code, err := c.auth.Do(ctx, c.username, c.password)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := oc.Exchange(ctx, code,
+		oauth2.SetAuthURLParam("code_verifier", verifier),
+	)
+
+	return token, err
+}
+
+func defaultAuth() *auth {
 	return &auth{
 		SelectDevice: mfaUnsupported,
 	}
@@ -43,9 +72,10 @@ func authHandler() *auth {
 func WithMFAHandler(handler func(context.Context, []Device) (Device, string, error)) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = authHandler()
+			c.authHandler = &authHandler{auth: defaultAuth()}
 		}
-		c.authHandler.SelectDevice = handler
+
+		c.authHandler.auth.SelectDevice = handler
 		return nil
 	}
 }
@@ -58,33 +88,11 @@ func mfaUnsupported(_ context.Context, _ []Device) (Device, string, error) {
 func WithCredentials(username, password string) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
-			c.authHandler = authHandler()
+			c.authHandler = &authHandler{auth: defaultAuth()}
 		}
 
-		verifier, challenge, err := pkce()
-		if err != nil {
-			return err
-		}
-
-		c.authHandler.AuthURL = c.oc.AuthCodeURL(state(), oauth2.AccessTypeOffline,
-			oauth2.SetAuthURLParam("code_challenge", challenge),
-			oauth2.SetAuthURLParam("code_challenge_method", "S256"),
-		)
-
-		ctx := context.Background()
-		code, err := c.authHandler.Do(ctx, username, password)
-		if err != nil {
-			return err
-		}
-
-		token, err := c.oc.Exchange(ctx, code,
-			oauth2.SetAuthURLParam("code_verifier", verifier),
-		)
-
-		if err == nil {
-			c.token = token
-		}
-
-		return err
+		c.authHandler.username = username
+		c.authHandler.password = password
+		return nil
 	}
 }
