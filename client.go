@@ -56,7 +56,6 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 
 		var err error
 		client.token, err = client.authHandler.login(ctx, client.oc)
-
 		if err != nil {
 			return nil, err
 		}

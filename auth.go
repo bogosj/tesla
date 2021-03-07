@@ -20,6 +20,7 @@ const (
 	mfaVerifyURL = "https://auth.tesla.com/oauth2/v3/authorize/mfa/verify"
 )
 
+// Device is the multi-factor device returned by the /authorize/mfa/factors endpoint
 type Device struct {
 	DispatchRequired bool      `json:"dispatchRequired"`
 	ID               string    `json:"id"`
