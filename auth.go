@@ -64,7 +64,7 @@ func (a *auth) Do(ctx context.Context, username, password string) (code string, 
 	}
 
 	// use tesla transport
-	a.Client.Transport = &Transport{RoundTripper: a.Client.Transport}
+	// a.Client.Transport = &Transport{RoundTripper: a.Client.Transport}
 
 	if a.Client.Jar == nil {
 		var err error
