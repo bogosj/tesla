@@ -1,7 +1,10 @@
 package tesla
 
 import (
+	"compress/gzip"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -32,30 +35,31 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	// if strings.EqualFold(res.Header.Get("Content-Encoding"), "gzip") {
-	// 	res.Body = &gzipReader{body: res.Body}
-	// }
+	if strings.EqualFold(res.Header.Get("Content-Encoding"), "gzip") {
+		res.Body = &gzipReader{body: res.Body}
+	}
+
 	return res, err
 }
 
-// type gzipReader struct {
-// 	body io.ReadCloser
-// 	zr   *gzip.Reader
-// 	zerr error
-// }
+type gzipReader struct {
+	body io.ReadCloser
+	zr   *gzip.Reader
+	zerr error
+}
 
-// func (gz *gzipReader) Read(p []byte) (n int, err error) {
-// 	if gz.zr == nil {
-// 		if gz.zerr == nil {
-// 			gz.zr, gz.zerr = gzip.NewReader(gz.body)
-// 		}
-// 		if gz.zerr != nil {
-// 			return 0, gz.zerr
-// 		}
-// 	}
-// 	return gz.zr.Read(p)
-// }
+func (gz *gzipReader) Read(p []byte) (n int, err error) {
+	if gz.zr == nil {
+		if gz.zerr == nil {
+			gz.zr, gz.zerr = gzip.NewReader(gz.body)
+		}
+		if gz.zerr != nil {
+			return 0, gz.zerr
+		}
+	}
+	return gz.zr.Read(p)
+}
 
-// func (gz *gzipReader) Close() error {
-// 	return gz.body.Close()
-// }
+func (gz *gzipReader) Close() error {
+	return gz.body.Close()
+}

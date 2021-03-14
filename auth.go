@@ -63,9 +63,6 @@ func (a *auth) Do(ctx context.Context, username, password string) (code string, 
 		a.initClient(ctx)
 	}
 
-	// use tesla transport
-	// a.Client.Transport = &Transport{RoundTripper: a.Client.Transport}
-
 	if a.Client.Jar == nil {
 		var err error
 		a.Client.Jar, err = cookiejar.New(nil)
