@@ -37,7 +37,6 @@ type auth struct {
 	Client       *http.Client
 	AuthURL      string
 	SelectDevice func(ctx context.Context, devices []Device) (d Device, passcode string, err error)
-	UserAgent    string
 }
 
 func (a *auth) initClient(ctx context.Context) {
@@ -64,16 +63,15 @@ func (a *auth) Do(ctx context.Context, username, password string) (code string, 
 		a.initClient(ctx)
 	}
 
+	// use tesla transport
+	a.Client.Transport = &Transport{RoundTripper: a.Client.Transport}
+
 	if a.Client.Jar == nil {
 		var err error
 		a.Client.Jar, err = cookiejar.New(nil)
 		if err != nil {
 			return "", fmt.Errorf("new cookie jar: %w", err)
 		}
-	}
-
-	if a.UserAgent == "" {
-		a.UserAgent = "hackney/1.17.0"
 	}
 
 	cr := a.Client.CheckRedirect
