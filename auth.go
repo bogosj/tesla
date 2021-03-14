@@ -121,7 +121,6 @@ func (a *auth) login(ctx context.Context, username, password string) (*http.Resp
 	if err != nil {
 		return nil, nil, fmt.Errorf("new request: %w", err)
 	}
-	req.Header.Set("User-Agent", a.UserAgent)
 
 	res, err := a.Client.Do(req)
 	if err != nil {
@@ -159,7 +158,6 @@ func (a *auth) login(ctx context.Context, username, password string) (*http.Resp
 	if err != nil {
 		return nil, nil, fmt.Errorf("new request: %w", err)
 	}
-	req.Header.Set("User-Agent", a.UserAgent)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err = a.Client.Do(req)
@@ -176,7 +174,6 @@ func (a *auth) listDevices(ctx context.Context, transactionID string) ([]Device,
 	if err != nil {
 		return nil, fmt.Errorf("new request: %w", err)
 	}
-	req.Header.Set("User-Agent", a.UserAgent)
 
 	res, err := a.Client.Do(req)
 	if err != nil {
@@ -211,7 +208,6 @@ func (a *auth) verify(ctx context.Context, transactionID string, d Device, passc
 	if err != nil {
 		return fmt.Errorf("new request: %w", err)
 	}
-	req.Header.Set("User-Agent", a.UserAgent)
 	req.Header.Set("Content-Type", "application/json")
 
 	res, err := a.Client.Do(req)
@@ -242,7 +238,6 @@ func (a *auth) commit(ctx context.Context, transactionID string) (code string, e
 	if err != nil {
 		return "", fmt.Errorf("new request: %w", err)
 	}
-	req.Header.Set("User-Agent", a.UserAgent)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := a.Client.Do(req)
