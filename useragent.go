@@ -18,9 +18,18 @@ func userAgent() (string, error) {
 
 	var b strings.Builder
 	e := base32.NewEncoder(base32.StdEncoding.WithPadding(base32.NoPadding), &b)
-	e.Write(buf[:prefixBytes])
-	e.Close()
-	b.WriteRune('/')
-	b.Write(strconv.AppendUint(nil, binary.BigEndian.Uint64(buf[prefixBytes:]), 10))
-	return b.String(), nil
+
+	_, err := e.Write(buf[:prefixBytes])
+	if err == nil {
+		err = e.Close()
+	}
+
+	if err == nil {
+		_, err = b.WriteRune('/')
+	}
+	if err == nil {
+		_, err = b.Write(strconv.AppendUint(nil, binary.BigEndian.Uint64(buf[prefixBytes:]), 10))
+	}
+
+	return b.String(), err
 }
