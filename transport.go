@@ -16,7 +16,10 @@ type Transport struct {
 
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if now := time.Now(); t.userAgent == "" || now.Sub(t.userAgentTime) > 6*time.Hour {
-		t.userAgent = userAgent()
+		var err error
+		if t.userAgent, err = userAgent(); err != nil {
+			return nil, err
+		}
 		t.userAgentTime = now
 	}
 	for _, h := range []struct{ k, v string }{
