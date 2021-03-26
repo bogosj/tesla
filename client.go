@@ -71,7 +71,9 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 
 	client.ts = client.oc.TokenSource(ctx, client.token)
 	client.hc = oauth2.NewClient(ctx, client.ts)
-	// client.hc.Transport = &Transport{RoundTripper: client.hc.Transport}
+
+	// use the Tesla UA transport
+	client.hc.Transport = &Transport{RoundTripper: client.hc.Transport}
 
 	return client, nil
 }
