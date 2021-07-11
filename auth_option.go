@@ -88,7 +88,7 @@ func mfaUnsupported(_ context.Context, _ []Device) (Device, string, error) {
 }
 
 // WithCaptchaHandler allows a consumer to provide a different configuration from the default.
-func WithCaptchaHandler(handler func(context.Context, []byte) (string, error)) ClientOption {
+func WithCaptchaHandler(handler func(context.Context, io.Reader) (string, error)) ClientOption {
 	return func(c *Client) error {
 		if c.authHandler == nil {
 			c.authHandler = defaultHandler()
@@ -99,7 +99,7 @@ func WithCaptchaHandler(handler func(context.Context, []byte) (string, error)) C
 	}
 }
 
-func captchaUnsupported(_ context.Context, _ []byte) (string, error) {
+func captchaUnsupported(_ context.Context, _ io.Reader) (string, error) {
 	return "", errors.New("captcha solving is not supported")
 }
 
