@@ -168,11 +168,29 @@ func login(ctx context.Context) error {
 	if err := e.Encode(t); err != nil {
 		return fmt.Errorf("json encode: %w", err)
 	}
+
+	v, err := client.Vehicles()
+	if err != nil {
+		return fmt.Errorf("vehicles: %w", err)
+	}
+
+	c := make(chan tesla.Message)
+	go func() {
+		for v := range c {
+			fmt.Println(v)
+		}
+	}()
+
+	for err == nil || errors.Is(err, tesla.VehicleDisconnectedError) {
+		err = client.Stream(v[0].VehicleID, c)
+		fmt.Println(err)
+	}
+
 	return nil
 }
 
 func main() {
 	if err := login(context.Background()); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }
