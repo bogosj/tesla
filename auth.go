@@ -157,7 +157,6 @@ func (a *auth) login(ctx context.Context, username, password string) (*http.Resp
 	})
 
 	if _, required := v["captcha"]; required {
-
 		u, _ := url.Parse(a.AuthURL)
 		u.Path = "/captcha"
 

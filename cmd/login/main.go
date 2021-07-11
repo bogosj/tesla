@@ -1,17 +1,24 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
+	"image"
+	"image/png"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/bogosj/tesla"
+	"github.com/gocolly/twocaptcha"
 	"github.com/manifoldco/promptui"
+	"github.com/srwiley/oksvg"
+	"github.com/srwiley/rasterx"
 )
 
 const (
@@ -82,6 +89,32 @@ func getUsernameAndPassword() (string, string, error) {
 	return username, password, nil
 }
 
+func solveCaptcha(ctx context.Context, svg io.Reader) (string, error) {
+	token := os.Getenv("CAPTCHA_TOKEN")
+	client := twocaptcha.New(token)
+
+	icon, err := oksvg.ReadIconStream(svg)
+	if err != nil {
+		return "", err
+	}
+
+	w := int(icon.ViewBox.W)
+	h := int(icon.ViewBox.H)
+
+	icon.SetTarget(0, 0, float64(w), float64(h))
+	rgba := image.NewRGBA(image.Rect(0, 0, w, h))
+	icon.Draw(rasterx.NewDasher(w, h, rasterx.NewScannerGV(w, h, rgba, rgba.Bounds())), 1)
+
+	img := &bytes.Buffer{}
+	err = png.Encode(img, rgba)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println("solving captcha...")
+	return client.SolveCaptcha(img.Bytes())
+}
+
 func shortLongStringFlag(name, short, value, usage string) *string {
 	s := flag.String(name, value, usage)
 	flag.StringVar(s, short, value, usage)
@@ -100,6 +133,7 @@ func login(ctx context.Context) error {
 	client, err := tesla.NewClient(
 		ctx,
 		tesla.WithMFAHandler(selectDevice),
+		tesla.WithCaptchaHandler(solveCaptcha),
 		tesla.WithCredentials(username, password),
 	)
 	if err != nil {
