@@ -103,7 +103,6 @@ func solveCaptcha(ctx context.Context, svg io.Reader) (string, error) {
 	}
 
 	fmt.Println("Captcha is now being opened in default application for svg files.")
-	fmt.Println()
 
 	captcha, err := (&promptui.Prompt{
 		Label:   "Captcha",
