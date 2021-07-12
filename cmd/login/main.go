@@ -87,7 +87,7 @@ func getUsernameAndPassword() (string, string, error) {
 }
 
 func solveCaptcha(ctx context.Context, svg io.Reader) (string, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "evcc-*.svg")
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "captcha-*.svg")
 	if err != nil {
 		return "", fmt.Errorf("cannot create temp file: %w", err)
 	}
