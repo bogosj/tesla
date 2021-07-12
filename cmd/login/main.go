@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -106,9 +105,16 @@ func solveCaptcha(ctx context.Context, svg io.Reader) (string, error) {
 	fmt.Println("Captcha is now being opened in default application for svg files.")
 	fmt.Println()
 
-	fmt.Print("Please enter captcha: ")
-	reader := bufio.NewReader(os.Stdin)
-	captcha, err := reader.ReadString('\n')
+	captcha, err := (&promptui.Prompt{
+		Label:   "Captcha:",
+		Pointer: promptui.PipeCursor,
+		Validate: func(s string) error {
+			if len(s) < 4 {
+				return errors.New("len(s) < 4")
+			}
+			return nil
+		},
+	}).Run()
 
 	return strings.TrimSpace(captcha), err
 }
