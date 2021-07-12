@@ -106,7 +106,7 @@ func solveCaptcha(ctx context.Context, svg io.Reader) (string, error) {
 	fmt.Println()
 
 	captcha, err := (&promptui.Prompt{
-		Label:   "Captcha:",
+		Label:   "Captcha",
 		Pointer: promptui.PipeCursor,
 		Validate: func(s string) error {
 			if len(s) < 4 {
