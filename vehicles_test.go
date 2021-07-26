@@ -47,10 +47,6 @@ func TestVehicle_CommandPath(t *testing.T) {
 	v := &Vehicle{ID: 1, c: client}
 
 	Convey("Should have a URL with /command/", t, func() {
-		So(v.CommandPath("honk_horn"), ShouldEndWith, "/api/1/vehicles/1/command/honk_horn")
-	})
-
-	Convey("Should have a URL without /command/", t, func() {
-		So(v.CommandPath("wake_up"), ShouldEndWith, "/api/1/vehicles/1/wake_up")
+		So(v.commandPath("honk_horn"), ShouldEndWith, "/api/1/vehicles/1/command/honk_horn")
 	})
 }

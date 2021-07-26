@@ -93,13 +93,14 @@ func (c *Client) Vehicle(vehicleID int64) (*Vehicle, error) {
 	return resp.Response, nil
 }
 
-// CommandPath returns the URL for a provided command.
-func (v *Vehicle) CommandPath(command string) string {
-	// The wake command is not rooted at .../command.
-	parts := []string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10)}
-	if command != "wake_up" {
-		parts = append(parts, "command")
-	}
-	parts = append(parts, command)
-	return strings.Join(parts, "/")
+func (v *Vehicle) basePath() string {
+	return strings.Join([]string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10)}, "/")
+}
+
+func (v *Vehicle) commandPath(command string) string {
+	return strings.Join([]string{v.basePath(), "command", command}, "/")
+}
+
+func (v *Vehicle) wakePath() string {
+	return strings.Join([]string{v.basePath(), "wake_up"}, "/")
 }
