@@ -2,6 +2,7 @@ package tesla
 
 import (
 	"strconv"
+	"strings"
 )
 
 // Vehicle represents the vehicle as returned from the Tesla API.
@@ -90,4 +91,15 @@ func (c *Client) Vehicle(vehicleID int64) (*Vehicle, error) {
 	}
 	resp.Response.c = c
 	return resp.Response, nil
+}
+
+// CommandPath returns the URL for a provided command.
+func (v *Vehicle) CommandPath(command string) string {
+	// The wake command is not rooted at .../command.
+	parts := []string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10)}
+	if command != "wake_up" {
+		parts = append(parts, "command")
+	}
+	parts = append(parts, command)
+	return strings.Join(parts, "/")
 }
