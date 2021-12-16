@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,6 +31,7 @@ type Message struct {
 
 var (
 	StreamingURL             = "wss://streaming.vn.teslamotors.com/streaming/"
+	StreamParams             = strings.Join(streamingCols[1:], ",")
 	ClientError              = errors.New("client_error")
 	DisconnectError          = errors.New("disconnect")
 	VehicleDisconnectedError = errors.New("vehicle_disconnected")
@@ -60,24 +61,25 @@ func (c *Client) StreamConnect(vehicleID uint64) (*websocket.Conn, error) {
 		return nil, err
 	}
 
-	token, err := c.StreamToken()
+	token, err := c.Token()
 	if err != nil {
 		return nil, err
 	}
 
 	subMsg := Subscribe{
 		Type:  "data:subscribe_oauth",
-		Token: token,
+		Token: token.AccessToken,
 		Value: strings.Join(streamingCols[1:], ","),
-		Tag:   fmt.Sprintf("%d", vehicleID),
+		Tag:   strconv.FormatUint(vehicleID, 10),
 	}
 
-	subData, _ := json.Marshal(subMsg)
-	log.Printf("Sending: %s", string(subData))
-	err = conn.WriteMessage(websocket.TextMessage, subData)
+	subData, err := json.Marshal(subMsg)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("Sending: %s", string(subData))
+	err = conn.WriteMessage(websocket.TextMessage, subData)
 
 	return conn, err
 }

@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -86,32 +85,6 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 // Token returns the oauth token
 func (c Client) Token() (*oauth2.Token, error) {
 	return c.ts.Token()
-}
-
-// StreamToken returns the oauth Streamtoken
-func (c Client) StreamToken() (string, error) {
-	client_id := "81527cff06843c8634fdc09e8ac0abefb46ac849f38fe1e431c2ef2106796384"
-	client_secret := "c7257eb71a564034f9419ee651c7d0e5f7aa6bfbd18bafb5c5c033b093bb2fa3"
-
-	uri := "https://owner-api.teslamotors.com/oauth/token"
-	data := map[string]string{
-		"grant_type":    "urn:ietf:params:oauth:grant-type:jwt-bearer",
-		"client_id":     client_id,
-		"client_secret": client_secret,
-	}
-
-	b, _ := json.Marshal(data)
-	req, _ := http.NewRequest("POST", uri, bytes.NewReader((b)))
-	// req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	res, err := c.processRequest(req)
-
-	var token map[string]string
-	_ = json.Unmarshal(res, &token)
-
-	fmt.Println(string(res), err)
-
-	return token["access_token"], err
 }
 
 // Calls an HTTP GET
