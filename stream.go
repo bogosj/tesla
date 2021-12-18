@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
 	"os/signal"
 	"strconv"
@@ -30,11 +29,11 @@ type Message struct {
 }
 
 var (
-	StreamingURL             = "wss://streaming.vn.teslamotors.com/streaming/"
-	StreamParams             = strings.Join(streamingCols[1:], ",")
-	ClientError              = errors.New("client_error")
-	DisconnectError          = errors.New("disconnect")
-	VehicleDisconnectedError = errors.New("vehicle_disconnected")
+	StreamingURL           = "wss://streaming.vn.teslamotors.com/streaming/"
+	StreamParams           = strings.Join(streamingCols[1:], ",")
+	ErrClient              = errors.New("client_error")
+	ErrDisconnect          = errors.New("disconnect")
+	ErrVehicleDisconnected = errors.New("vehicle_disconnected")
 )
 
 var streamingCols = []string{
@@ -78,7 +77,6 @@ func (c *Client) StreamConnect(vehicleID uint64) (*websocket.Conn, error) {
 		return nil, err
 	}
 
-	log.Printf("Sending: %s", string(subData))
 	err = conn.WriteMessage(websocket.TextMessage, subData)
 
 	return conn, err
@@ -94,22 +92,20 @@ func (c *Client) Stream(vehicleID uint64, ch chan Message) error {
 	if err != nil {
 		return err
 	}
+	defer conn.Close()
 
 	go func() {
 		defer close(done)
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				log.Printf("stream read error: %s", err)
-				dataError = DisconnectError
+				dataError = ErrDisconnect
 				break
 			}
-			log.Printf("stream received message: %s", message)
 
 			m := Message{}
 			err = json.Unmarshal(message, &m)
 			if err != nil {
-				log.Printf("unable to unmarshal message (%s): %s", message, m)
 				continue
 			}
 
@@ -120,14 +116,12 @@ func (c *Client) Stream(vehicleID uint64, ch chan Message) error {
 			case "data:error":
 				switch m.ErrorType {
 				case "client_error":
-					dataError = ClientError
+					dataError = ErrClient
 				case "vehicle_disconnected":
-					dataError = VehicleDisconnectedError
+					dataError = ErrVehicleDisconnected
 				}
-				// close(done)
+				close(done)
 				return
-			default:
-				log.Printf("Received unhandled message: %v", m)
 			}
 		}
 	}()
