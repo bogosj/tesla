@@ -181,7 +181,7 @@ func login(ctx context.Context) error {
 		}
 	}()
 
-	for err == nil || errors.Is(err, tesla.VehicleDisconnectedError) {
+	for err == nil || errors.Is(err, tesla.ErrVehicleDisconnected) {
 		err = client.Stream(v[0].VehicleID, c)
 		fmt.Println(err)
 	}
