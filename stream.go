@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -30,9 +31,8 @@ type Message struct {
 
 var (
 	StreamingURL           = "wss://streaming.vn.teslamotors.com/streaming/"
-	ErrClient              = errors.New("client_error")
-	ErrDisconnect          = errors.New("disconnect")
-	ErrVehicleDisconnected = errors.New("vehicle_disconnected")
+	ErrClient              = errors.New("client error")
+	ErrVehicleDisconnected = errors.New("vehicle disconnected")
 )
 
 var streamingCols = []string{
@@ -102,7 +102,7 @@ func (c *Client) Stream(vehicleID uint64, ch chan Message, params ...string) err
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
-				dataError = ErrDisconnect
+				dataError = fmt.Errorf("socket read: %w", err)
 				return
 			}
 
