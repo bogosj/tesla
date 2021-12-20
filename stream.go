@@ -22,7 +22,7 @@ type Subscribe struct {
 }
 
 type Message struct {
-	Type              string `json:"msg_type"` //
+	Type              string `json:"msg_type"`
 	ConnectionTimeout int64  `json:"connection_timeout"`
 	Value             string `json:"value"`
 	Tag               string `json:"tag"`
