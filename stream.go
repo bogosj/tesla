@@ -30,7 +30,6 @@ type Message struct {
 
 var (
 	StreamingURL           = "wss://streaming.vn.teslamotors.com/streaming/"
-	StreamParams           = strings.Join(streamingCols[1:], ",")
 	ErrClient              = errors.New("client_error")
 	ErrDisconnect          = errors.New("disconnect")
 	ErrVehicleDisconnected = errors.New("vehicle_disconnected")
@@ -51,7 +50,7 @@ var streamingCols = []string{
 	"est_range",
 	"heading"}
 
-func (c *Client) StreamConnect(vehicleID uint64) (*websocket.Conn, error) {
+func (c *Client) streamConnect(vehicleID uint64, params string) (*websocket.Conn, error) {
 	conn, _, err := websocket.DefaultDialer.DialContext(
 		context.Background(),
 		StreamingURL,
@@ -68,7 +67,7 @@ func (c *Client) StreamConnect(vehicleID uint64) (*websocket.Conn, error) {
 	subMsg := Subscribe{
 		Type:  "data:subscribe_oauth",
 		Token: token.AccessToken,
-		Value: strings.Join(streamingCols[1:], ","),
+		Value: params,
 		Tag:   strconv.FormatUint(vehicleID, 10),
 	}
 
@@ -82,13 +81,17 @@ func (c *Client) StreamConnect(vehicleID uint64) (*websocket.Conn, error) {
 	return conn, err
 }
 
-func (c *Client) Stream(vehicleID uint64, ch chan Message) error {
+func (c *Client) Stream(vehicleID uint64, ch chan Message, params ...string) error {
 	var dataError error
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	done := make(chan struct{})
 
-	conn, err := c.StreamConnect(vehicleID)
+	if len(params) == 0 {
+		params = streamingCols[1:]
+	}
+
+	conn, err := c.streamConnect(vehicleID, strings.Join(params, ","))
 	if err != nil {
 		return err
 	}
@@ -100,12 +103,11 @@ func (c *Client) Stream(vehicleID uint64, ch chan Message) error {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				dataError = ErrDisconnect
-				break
+				return
 			}
 
 			m := Message{}
-			err = json.Unmarshal(message, &m)
-			if err != nil {
+			if err := json.Unmarshal(message, &m); err != nil {
 				continue
 			}
 
@@ -120,7 +122,6 @@ func (c *Client) Stream(vehicleID uint64, ch chan Message) error {
 				case "vehicle_disconnected":
 					dataError = ErrVehicleDisconnected
 				}
-				close(done)
 				return
 			}
 		}
