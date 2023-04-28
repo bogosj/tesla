@@ -193,8 +193,8 @@ type ServiceData struct {
 	ServiceStatus string    `json:"service_status"`
 }
 
-// StateRequest represents the request to get the states of the vehicle.
-type StateRequest struct {
+// VehicleData represents the states of the vehicle.
+type VehicleData struct {
 	Response struct {
 		Timestamp timeMsec `json:"timestamp"`
 		*ChargeState
@@ -287,61 +287,7 @@ func (v *Vehicle) NearbyChargingSites() (*NearbyChargingSitesResponse, error) {
 	return resp, nil
 }
 
-// ChargeState returns the charge state of the vehicle.
-func (v *Vehicle) ChargeState() (*ChargeState, error) {
-	stateRequest, err := v.c.fetchState("charge_state", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.ChargeState, nil
-}
-
-// ClimateState returns the climate state of the vehicle.
-func (v Vehicle) ClimateState() (*ClimateState, error) {
-	stateRequest, err := v.c.fetchState("climate_state", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.ClimateState, nil
-}
-
-// DriveState returns the drive state of the vehicle.
-func (v Vehicle) DriveState() (*DriveState, error) {
-	stateRequest, err := v.c.fetchState("drive_state", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.DriveState, nil
-}
-
-// GuiSettings returns the GUI settings of the vehicle.
-func (v Vehicle) GuiSettings() (*GuiSettings, error) {
-	stateRequest, err := v.c.fetchState("gui_settings", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.GuiSettings, nil
-}
-
-// VehicleState returns the state of the vehicle.
-func (v Vehicle) VehicleState() (*VehicleState, error) {
-	stateRequest, err := v.c.fetchState("vehicle_state", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.VehicleState, nil
-}
-
-// ServiceData returns the service data for the vehicle.
-func (v Vehicle) ServiceData() (*ServiceData, error) {
-	stateRequest, err := v.c.fetchState("service_data", v.ID)
-	if err != nil {
-		return nil, err
-	}
-	return stateRequest.Response.ServiceData, nil
-}
-
-func stateError(sr *StateRequest) error {
+func stateError(sr *VehicleData) error {
 	if sr.Error == "" {
 		return nil
 	}
@@ -353,56 +299,19 @@ func stateError(sr *StateRequest) error {
 }
 
 // A utility function to fetch the appropriate state of the vehicle
-func (c *Client) fetchState(resource string, id int64) (*StateRequest, error) {
-	stateRequest := &StateRequest{}
-	path := strings.Join([]string{c.baseURL, "vehicles", strconv.FormatInt(id, 10), "data_request", resource}, "/")
-	if err := c.getJSON(path, stateRequest); err != nil {
+func (c *Client) fetchState(id int64) (*VehicleData, error) {
+	var res VehicleData
+	path := strings.Join([]string{c.baseURL, "vehicles", strconv.FormatInt(id, 10), "vehicle_data"}, "/")
+	if err := c.getJSON(path, &res); err != nil {
 		return nil, err
 	}
-	if err := stateError(stateRequest); err != nil {
+	if err := stateError(&res); err != nil {
 		return nil, err
 	}
-	return stateRequest, nil
+	return &res, nil
 }
 
 // Data : Get data of the vehicle (calling this will not permit the car to sleep)
-func (v Vehicle) Data(vid int64) (*StateRequest, error) {
-	stateRequest := &StateRequest{}
-
-	// climate_state
-	stateRequestClimate, err := v.c.fetchState("climate_state", v.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getting climate_state failed: %w", err)
-	}
-	stateRequest.Response.ClimateState = stateRequestClimate.Response.ClimateState
-
-	// drive_state
-	stateRequestGui, err := v.c.fetchState("drive_state", v.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getting drive_state failed: %w", err)
-	}
-	stateRequest.Response.DriveState = stateRequestGui.Response.DriveState
-
-	// gui_settings
-	stateRequestSettings, err := v.c.fetchState("gui_settings", v.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getting gui_settings failed: %w", err)
-	}
-	stateRequest.Response.GuiSettings = stateRequestSettings.Response.GuiSettings
-
-	// vehicle_state
-	stateRequestVehicle, err := v.c.fetchState("vehicle_state", v.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getting vehicle_state failed: %w", err)
-	}
-	stateRequest.Response.VehicleState = stateRequestVehicle.Response.VehicleState
-
-	// charge_state
-	stateRequestCharge, err := v.c.fetchState("charge_state", v.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getting charge_state failed: %w", err)
-	}
-	stateRequest.Response.ChargeState = stateRequestCharge.Response.ChargeState
-
-	return stateRequest, nil
+func (v Vehicle) Data() (*VehicleData, error) {
+	return v.c.fetchState(v.ID)
 }
