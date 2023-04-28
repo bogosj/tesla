@@ -9,6 +9,7 @@ import (
 
 // ChargeState contains the current charge states that exist within the vehicle.
 type ChargeState struct {
+	Timestamp                   timeMsec    `json:"timestamp"`
 	ChargingState               string      `json:"charging_state"`
 	ChargeLimitSoc              int         `json:"charge_limit_soc"`
 	ChargeLimitSocStd           int         `json:"charge_limit_soc_std"`
@@ -65,6 +66,7 @@ type ChargeState struct {
 
 // ClimateState contains the current climate states availale from the vehicle.
 type ClimateState struct {
+	Timestamp                  timeMsec    `json:"timestamp"`
 	InsideTemp                 float64     `json:"inside_temp"`
 	OutsideTemp                float64     `json:"outside_temp"`
 	DriverTempSetting          float64     `json:"driver_temp_setting"`
@@ -98,6 +100,7 @@ type ClimateState struct {
 
 // DriveState contains the current drive state of the vehicle.
 type DriveState struct {
+	Timestamp               timeMsec    `json:"timestamp"`
 	ShiftState              interface{} `json:"shift_state"`
 	Speed                   float64     `json:"speed"`
 	Latitude                float64     `json:"latitude"`
@@ -113,61 +116,63 @@ type DriveState struct {
 
 // GuiSettings contains the current GUI settings of the vehicle.
 type GuiSettings struct {
-	GuiDistanceUnits    string `json:"gui_distance_units"`
-	GuiTemperatureUnits string `json:"gui_temperature_units"`
-	GuiChargeRateUnits  string `json:"gui_charge_rate_units"`
-	Gui24HourTime       bool   `json:"gui_24_hour_time"`
-	GuiRangeDisplay     string `json:"gui_range_display"`
-	ShowRangeUnits      bool   `json:"show_range_units"`
+	Timestamp           timeMsec `json:"timestamp"`
+	GuiDistanceUnits    string   `json:"gui_distance_units"`
+	GuiTemperatureUnits string   `json:"gui_temperature_units"`
+	GuiChargeRateUnits  string   `json:"gui_charge_rate_units"`
+	Gui24HourTime       bool     `json:"gui_24_hour_time"`
+	GuiRangeDisplay     string   `json:"gui_range_display"`
+	ShowRangeUnits      bool     `json:"show_range_units"`
 }
 
 // VehicleState contains the current state of the vehicle.
 type VehicleState struct {
-	APIVersion              int     `json:"api_version"`
-	AutoParkState           string  `json:"autopark_state"`
-	AutoParkStateV2         string  `json:"autopark_state_v2"`
-	AutoParkStateV3         string  `json:"autopark_state_v3"`
-	CalendarSupported       bool    `json:"calendar_supported"`
-	CarType                 string  `json:"car_type"`
-	CarVersion              string  `json:"car_version"`
-	CenterDisplayState      int     `json:"center_display_state"`
-	DarkRims                bool    `json:"dark_rims"`
-	DriverFrontDoor         int     `json:"df"`
-	DriverRearDoor          int     `json:"dr"`
-	ExteriorColor           string  `json:"exterior_color"`
-	FrontTrunk              int     `json:"ft"`
-	HasSpoiler              bool    `json:"has_spoiler"`
-	Locked                  bool    `json:"locked"`
-	NotificationsSupported  bool    `json:"notifications_supported"`
-	Odometer                float64 `json:"odometer"`
-	ParsedCalendarSupported bool    `json:"parsed_calendar_supported"`
-	PerfConfig              string  `json:"perf_config"`
-	PassengerFrontDoor      int     `json:"pf"`
-	PassengerRearDoor       int     `json:"pr"`
-	RearSeatHeaters         int     `json:"rear_seat_heaters"`
-	RemoteStart             bool    `json:"remote_start"`
-	RemoteStartSupported    bool    `json:"remote_start_supported"`
-	RightHandDrive          bool    `json:"rhd"`
-	RoofColor               string  `json:"roof_color"`
-	RearTrunk               int     `json:"rt"`
-	SentryMode              bool    `json:"sentry_mode"`
-	SentryModeAvailable     bool    `json:"sentry_mode_available"`
-	SeatType                int     `json:"seat_type"`
-	SpoilerType             string  `json:"spoiler_type"`
-	SunRoofInstalled        int     `json:"sun_roof_installed"`
-	SunRoofPercentOpen      int     `json:"sun_roof_percent_open"`
-	SunRoofState            string  `json:"sun_roof_state"`
-	ThirdRowSeats           string  `json:"third_row_seats"`
-	ValetMode               bool    `json:"valet_mode"`
-	VehicleName             string  `json:"vehicle_name"`
-	WheelType               string  `json:"wheel_type"`
-	FrontDriverWindow       int     `json:"fd_window"`
-	FrontPassengerWindow    int     `json:"fp_window"`
-	RearDriverWindow        int     `json:"rd_window"`
-	RearPassengerWindow     int     `json:"rp_window"`
-	IsUserPresent           bool    `json:"is_user_present"`
-	RemoteStartEnabled      bool    `json:"remote_start_enabled"`
-	ValetPinNeeded          bool    `json:"valet_pin_needed"`
+	Timestamp               timeMsec `json:"timestamp"`
+	APIVersion              int      `json:"api_version"`
+	AutoParkState           string   `json:"autopark_state"`
+	AutoParkStateV2         string   `json:"autopark_state_v2"`
+	AutoParkStateV3         string   `json:"autopark_state_v3"`
+	CalendarSupported       bool     `json:"calendar_supported"`
+	CarType                 string   `json:"car_type"`
+	CarVersion              string   `json:"car_version"`
+	CenterDisplayState      int      `json:"center_display_state"`
+	DarkRims                bool     `json:"dark_rims"`
+	DriverFrontDoor         int      `json:"df"`
+	DriverRearDoor          int      `json:"dr"`
+	ExteriorColor           string   `json:"exterior_color"`
+	FrontTrunk              int      `json:"ft"`
+	HasSpoiler              bool     `json:"has_spoiler"`
+	Locked                  bool     `json:"locked"`
+	NotificationsSupported  bool     `json:"notifications_supported"`
+	Odometer                float64  `json:"odometer"`
+	ParsedCalendarSupported bool     `json:"parsed_calendar_supported"`
+	PerfConfig              string   `json:"perf_config"`
+	PassengerFrontDoor      int      `json:"pf"`
+	PassengerRearDoor       int      `json:"pr"`
+	RearSeatHeaters         int      `json:"rear_seat_heaters"`
+	RemoteStart             bool     `json:"remote_start"`
+	RemoteStartSupported    bool     `json:"remote_start_supported"`
+	RightHandDrive          bool     `json:"rhd"`
+	RoofColor               string   `json:"roof_color"`
+	RearTrunk               int      `json:"rt"`
+	SentryMode              bool     `json:"sentry_mode"`
+	SentryModeAvailable     bool     `json:"sentry_mode_available"`
+	SeatType                int      `json:"seat_type"`
+	SpoilerType             string   `json:"spoiler_type"`
+	SunRoofInstalled        int      `json:"sun_roof_installed"`
+	SunRoofPercentOpen      int      `json:"sun_roof_percent_open"`
+	SunRoofState            string   `json:"sun_roof_state"`
+	ThirdRowSeats           string   `json:"third_row_seats"`
+	ValetMode               bool     `json:"valet_mode"`
+	VehicleName             string   `json:"vehicle_name"`
+	WheelType               string   `json:"wheel_type"`
+	FrontDriverWindow       int      `json:"fd_window"`
+	FrontPassengerWindow    int      `json:"fp_window"`
+	RearDriverWindow        int      `json:"rd_window"`
+	RearPassengerWindow     int      `json:"rp_window"`
+	IsUserPresent           bool     `json:"is_user_present"`
+	RemoteStartEnabled      bool     `json:"remote_start_enabled"`
+	ValetPinNeeded          bool     `json:"valet_pin_needed"`
 	MediaState              struct {
 		RemoteControlEnabled bool `json:"remote_control_enabled"`
 	} `json:"media_state"`
@@ -189,6 +194,7 @@ type VehicleState struct {
 
 // ServiceData contains the service data of the vehicle.
 type ServiceData struct {
+	Timestamp     timeMsec  `json:"timestamp"`
 	ServiceETC    time.Time `json:"service_etc"`
 	ServiceStatus string    `json:"service_status"`
 }
@@ -196,13 +202,13 @@ type ServiceData struct {
 // VehicleData represents the states of the vehicle.
 type VehicleData struct {
 	Response struct {
-		Timestamp timeMsec `json:"timestamp"`
-		*ChargeState
-		*ClimateState
-		*DriveState
-		*GuiSettings
-		*VehicleState
-		*ServiceData
+		VehiclePartialResponse
+		ChargeState  ChargeState
+		ClimateState ClimateState
+		DriveState   DriveState
+		GuiSettings  GuiSettings
+		VehicleState VehicleState
+		ServiceData  ServiceData
 	} `json:"response"`
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
