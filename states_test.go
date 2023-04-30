@@ -36,46 +36,46 @@ func TestStatesSpec(t *testing.T) {
 		So(status, ShouldBeTrue)
 	})
 
-	// Convey("Should get charge state", t, func() {
-	// 	status, err := vehicle.ChargeState()
-	// 	So(err, ShouldBeNil)
-	// 	So(status.BatteryLevel, ShouldEqual, 90)
-	// 	So(status.ChargeRate, ShouldEqual, 0)
-	// 	So(status.ChargingState, ShouldEqual, "Complete")
-	// })
+	Convey("Should get charge state", t, func() {
+		status, err := vehicle.Data()
+		So(err, ShouldBeNil)
+		So(status.Response.ChargeState.BatteryLevel, ShouldEqual, 90)
+		So(status.Response.ChargeState.ChargeRate, ShouldEqual, 0)
+		So(status.Response.ChargeState.ChargingState, ShouldEqual, "Complete")
+	})
 
-	// Convey("Should get climate state", t, func() {
-	// 	status, err := vehicle.ClimateState()
-	// 	So(err, ShouldBeNil)
-	// 	So(status.DriverTempSetting, ShouldEqual, 22.0)
-	// 	So(status.PassengerTempSetting, ShouldEqual, 22.0)
-	// 	So(status.IsRearDefrosterOn, ShouldBeFalse)
-	// })
+	Convey("Should get climate state", t, func() {
+		status, err := vehicle.Data()
+		So(err, ShouldBeNil)
+		So(status.Response.ClimateState.DriverTempSetting, ShouldEqual, 22.0)
+		So(status.Response.ClimateState.PassengerTempSetting, ShouldEqual, 22.0)
+		So(status.Response.ClimateState.IsRearDefrosterOn, ShouldBeFalse)
+	})
 
-	// Convey("Should get drive state", t, func() {
-	// 	status, err := vehicle.DriveState()
-	// 	So(err, ShouldBeNil)
-	// 	So(status.Latitude, ShouldEqual, 35.1)
-	// 	So(status.Longitude, ShouldEqual, 20.2)
-	// })
+	Convey("Should get drive state", t, func() {
+		status, err := vehicle.Data()
+		So(err, ShouldBeNil)
+		So(status.Response.DriveState.Latitude, ShouldEqual, 35.1)
+		So(status.Response.DriveState.Longitude, ShouldEqual, 20.2)
+	})
 
-	// Convey("Should get GUI settings", t, func() {
-	// 	status, err := vehicle.GuiSettings()
-	// 	So(err, ShouldBeNil)
-	// 	So(status.GuiDistanceUnits, ShouldEqual, "mi/hr")
-	// 	So(status.GuiTemperatureUnits, ShouldEqual, "F")
-	// })
+	Convey("Should get GUI settings", t, func() {
+		status, err := vehicle.Data()
+		So(err, ShouldBeNil)
+		So(status.Response.GuiSettings.GuiDistanceUnits, ShouldEqual, "mi/hr")
+		So(status.Response.GuiSettings.GuiTemperatureUnits, ShouldEqual, "F")
+	})
 
-	// Convey("Should get Vehicle state", t, func() {
-	// 	status, err := vehicle.VehicleState()
-	// 	So(err, ShouldBeNil)
-	// 	So(status.APIVersion, ShouldEqual, 3)
-	// 	So(status.CalendarSupported, ShouldBeTrue)
-	// 	So(status.RearTrunk, ShouldEqual, 0)
-	// })
+	Convey("Should get Vehicle state", t, func() {
+		status, err := vehicle.Data()
+		So(err, ShouldBeNil)
+		So(status.Response.VehicleState.APIVersion, ShouldEqual, 3)
+		So(status.Response.VehicleState.CalendarSupported, ShouldBeTrue)
+		So(status.Response.VehicleState.RearTrunk, ShouldEqual, 0)
+	})
 
 	// Convey("Should get service data", t, func() {
-	// 	status, err := vehicle.ServiceData()
+	// 	status, err := vehicle.Data()
 	// 	So(err, ShouldBeNil)
 	// 	So(status.ServiceStatus, ShouldEqual, "in_service")
 	// 	wantTime, err := time.Parse(time.RFC3339, "2019-08-15T14:15:00+02:00")

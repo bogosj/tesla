@@ -203,12 +203,13 @@ type ServiceData struct {
 type VehicleData struct {
 	Response struct {
 		VehiclePartialResponse
-		ChargeState  ChargeState
-		ClimateState ClimateState
-		DriveState   DriveState
-		GuiSettings  GuiSettings
-		VehicleState VehicleState
-		ServiceData  ServiceData
+		ChargeState   ChargeState   `json:"charge_state"`
+		ClimateState  ClimateState  `json:"climate_state"`
+		DriveState    DriveState    `json:"drive_state"`
+		GuiSettings   GuiSettings   `json:"guiset_tings"`
+		VehicleState  VehicleState  `json:"vehicle_state"`
+		VehicleConfig VehicleConfig `json:"vehicle_config"`
+		// ServiceData   ServiceData   `json:"service_data"`
 	} `json:"response"`
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
