@@ -202,12 +202,11 @@ type ServiceData struct {
 // VehicleData represents the states of the vehicle.
 type VehicleData struct {
 	Response struct {
-		VehiclePartialResponse
 		ChargeState   ChargeState   `json:"charge_state"`
 		ClimateState  ClimateState  `json:"climate_state"`
 		DriveState    DriveState    `json:"drive_state"`
-		GuiSettings   GuiSettings   `json:"guiset_tings"`
 		VehicleState  VehicleState  `json:"vehicle_state"`
+		GuiSettings   GuiSettings   `json:"gui_settings"`
 		VehicleConfig VehicleConfig `json:"vehicle_config"`
 		// ServiceData   ServiceData   `json:"service_data"`
 	} `json:"response"`
