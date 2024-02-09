@@ -1,7 +1,6 @@
 package tesla
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -9,7 +8,6 @@ import (
 type VehiclePartialResponse struct {
 	Color                  interface{} `json:"color"`
 	DisplayName            string      `json:"display_name"`
-	ID                     int64       `json:"id"`
 	OptionCodes            string      `json:"option_codes"`
 	VehicleID              uint64      `json:"vehicle_id"`
 	Vin                    string      `json:"vin"`
@@ -31,7 +29,6 @@ type VehiclePartialResponse struct {
 type Vehicle struct {
 	Color                  interface{} `json:"color"`
 	DisplayName            string      `json:"display_name"`
-	ID                     int64       `json:"id"`
 	OptionCodes            string      `json:"option_codes"`
 	VehicleID              uint64      `json:"vehicle_id"`
 	Vin                    string      `json:"vin"`
@@ -112,9 +109,9 @@ func (c *Client) Vehicles() ([]*Vehicle, error) {
 }
 
 // Vehicle fetches the vehicle by ID associated to a Tesla account via the API.
-func (c *Client) Vehicle(vehicleID int64) (*Vehicle, error) {
+func (c *Client) Vehicle(vin string) (*Vehicle, error) {
 	resp := &VehicleResponse{}
-	if err := c.getJSON(c.baseURL+"/vehicles/"+strconv.FormatInt(vehicleID, 10), resp); err != nil {
+	if err := c.getJSON(c.baseURL+"/vehicles/"+vin, resp); err != nil {
 		return nil, err
 	}
 	resp.Response.c = c
@@ -122,7 +119,7 @@ func (c *Client) Vehicle(vehicleID int64) (*Vehicle, error) {
 }
 
 func (v *Vehicle) basePath() string {
-	return strings.Join([]string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10)}, "/")
+	return strings.Join([]string{v.c.baseURL, "vehicles", v.Vin}, "/")
 }
 
 func (v *Vehicle) commandPath(command string) string {
