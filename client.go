@@ -29,22 +29,20 @@ var OAuth2Config = &oauth2.Config{
 
 // Client provides the client and associated elements for interacting with the Tesla API.
 type Client struct {
-	baseURL      string
-	streamingURL string
-	hc           *http.Client
-	oc           *oauth2.Config
-	token        *oauth2.Token
-	ts           oauth2.TokenSource
-	authHandler  *authHandler
+	baseURL     string
+	hc          *http.Client
+	oc          *oauth2.Config
+	token       *oauth2.Token
+	ts          oauth2.TokenSource
+	authHandler *authHandler
 }
 
 // NewClient creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
 // functional options to initialize the client with an OAuth token.
 func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	client := &Client{
-		baseURL:      "https://owner-api.teslamotors.com/api/1",
-		streamingURL: "https://streaming.vn.teslamotors.com",
-		oc:           OAuth2Config,
+		baseURL: "https://owner-api.teslamotors.com/api/1",
+		oc:      OAuth2Config,
 	}
 
 	for _, option := range options {

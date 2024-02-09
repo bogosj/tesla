@@ -32,9 +32,8 @@ func NewTestClient(ts *httptest.Server) *Client {
 	}
 
 	client := &Client{
-		baseURL:      ts.URL + "/api/1",
-		streamingURL: ts.URL,
-		hc:           config.Client(ctx, tok),
+		baseURL: ts.URL + "/api/1",
+		hc:      config.Client(ctx, tok),
 	}
 	return client
 }

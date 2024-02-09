@@ -51,15 +51,6 @@ func WithBaseURL(url string) ClientOption {
 	}
 }
 
-// WithStreamingURL provides a method to set the base URL for streaming API calls to differ
-// from the default.
-func WithStreamingURL(url string) ClientOption {
-	return func(c *Client) error {
-		c.streamingURL = url
-		return nil
-	}
-}
-
 // WithOAuth2Config allows a consumer to provide a different configuration from the default.
 func WithOAuth2Config(oc *oauth2.Config) ClientOption {
 	return func(c *Client) error {
