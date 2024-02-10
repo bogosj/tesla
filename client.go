@@ -29,12 +29,11 @@ var OAuth2Config = &oauth2.Config{
 
 // Client provides the client and associated elements for interacting with the Tesla API.
 type Client struct {
-	baseURL     string
-	hc          *http.Client
-	oc          *oauth2.Config
-	token       *oauth2.Token
-	ts          oauth2.TokenSource
-	authHandler *authHandler
+	baseURL string
+	hc      *http.Client
+	oc      *oauth2.Config
+	token   *oauth2.Token
+	ts      oauth2.TokenSource
 }
 
 // NewClient creates a new Tesla API client. You must provided one of WithToken or WithTokenFile
@@ -50,22 +49,6 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// perform login if configured
-	if client.authHandler != nil {
-		if client.token != nil {
-			return nil, errors.New("cannot have token and authorization options both")
-		}
-
-		var err error
-		client.token, err = client.authHandler.login(ctx, client.oc)
-		if err != nil {
-			return nil, err
-		}
-
-		// wipe credentials
-		client.authHandler = nil
 	}
 
 	if client.hc == nil {
