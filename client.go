@@ -15,24 +15,10 @@ import (
 // unknown field.
 const disallowUnknownFields = false
 
-// OAuth2Config is the OAuth2 configuration for authenticating with the Tesla API.
-var OAuth2Config = &oauth2.Config{
-	ClientID:    "ownerapi",
-	RedirectURL: "https://auth.tesla.com/void/callback",
-	Endpoint: oauth2.Endpoint{
-		AuthURL:   "https://auth.tesla.com/en_us/oauth2/v3/authorize",
-		TokenURL:  "https://auth.tesla.com/oauth2/v3/token",
-		AuthStyle: oauth2.AuthStyleInParams,
-	},
-	Scopes: []string{"openid", "email", "offline_access"},
-}
-
 // Client provides the client and associated elements for interacting with the Tesla API.
 type Client struct {
 	baseURL string
 	hc      *http.Client
-	oc      *oauth2.Config
-	token   *oauth2.Token
 	ts      oauth2.TokenSource
 }
 
@@ -41,7 +27,6 @@ type Client struct {
 func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	client := &Client{
 		baseURL: "https://owner-api.teslamotors.com/api/1",
-		oc:      OAuth2Config,
 	}
 
 	for _, option := range options {
@@ -55,11 +40,7 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 		client.hc = http.DefaultClient
 
 		if client.ts == nil {
-			if client.token == nil {
-				return nil, errors.New("an OAuth2 token must be provided")
-			}
-
-			client.ts = client.oc.TokenSource(ctx, client.token)
+			return nil, errors.New("a token source must be provided")
 		}
 
 		client.hc.Transport = &oauth2.Transport{
@@ -69,11 +50,6 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 	}
 
 	return client, nil
-}
-
-// Token returns the oauth token
-func (c Client) Token() (*oauth2.Token, error) {
-	return c.ts.Token()
 }
 
 // Calls an HTTP GET
