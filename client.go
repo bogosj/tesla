@@ -68,15 +68,22 @@ func NewClient(ctx context.Context, options ...ClientOption) (*Client, error) {
 		client.authHandler = nil
 	}
 
-	if client.token == nil {
-		return nil, errors.New("an OAuth2 token must be provided")
+	if client.hc == nil {
+		client.hc = http.DefaultClient
+
+		if client.ts == nil {
+			if client.token == nil {
+				return nil, errors.New("an OAuth2 token must be provided")
+			}
+
+			client.ts = client.oc.TokenSource(ctx, client.token)
+		}
+
+		client.hc.Transport = &oauth2.Transport{
+			Source: client.ts,
+			Base:   client.hc.Transport,
+		}
 	}
-
-	client.ts = client.oc.TokenSource(ctx, client.token)
-	client.hc = oauth2.NewClient(ctx, client.ts)
-
-	// use the Tesla UA transport
-	client.hc.Transport = &Transport{RoundTripper: client.hc.Transport}
 
 	return client, nil
 }

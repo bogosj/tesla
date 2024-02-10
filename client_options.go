@@ -2,7 +2,9 @@ package tesla
 
 import (
 	"encoding/json"
+	"net/http"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -42,11 +44,27 @@ func WithTokenFile(path string) ClientOption {
 	return WithToken(t)
 }
 
+// WithTokenSource provides an oauth2.TokenSource to the client for auth
+func WithTokenSource(ts oauth2.TokenSource) ClientOption {
+	return func(c *Client) error {
+		c.ts = ts
+		return nil
+	}
+}
+
+// WithClient provides set the http.Client
+func WithClient(client *http.Client) ClientOption {
+	return func(c *Client) error {
+		c.hc = client
+		return nil
+	}
+}
+
 // WithBaseURL provides a method to set the base URL for standard API calls to differ
 // from the default.
 func WithBaseURL(url string) ClientOption {
 	return func(c *Client) error {
-		c.baseURL = url
+		c.baseURL = strings.TrimRight(url, "/")
 		return nil
 	}
 }
