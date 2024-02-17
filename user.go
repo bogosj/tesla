@@ -16,3 +16,21 @@ func (c *Client) UserRegion() (*Region, error) {
 	}
 	return regionResponse.Response, nil
 }
+
+type MeResponse struct {
+	Response *Me `json:"response"`
+}
+type Me struct {
+	Email           string `json:"email"`
+	FullName        string `json:"full_name"`
+	ProfileImageUrl string `json:"profile_image_url"`
+}
+
+// UserMe fetches the users me
+func (c *Client) UserMe() (*Me, error) {
+	var meResponse MeResponse
+	if err := c.getJSON(c.baseURL+"/users/me", &meResponse); err != nil {
+		return nil, err
+	}
+	return meResponse.Response, nil
+}
