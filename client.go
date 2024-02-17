@@ -71,7 +71,7 @@ func (c *Client) SetApiUrl(url string) {
 
 // Calls an HTTP GET
 func (c *Client) get(url string) ([]byte, error) {
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	return c.processRequest(req)
 }
 
@@ -85,15 +85,12 @@ func (c *Client) getJSON(url string, out interface{}) error {
 	if disallowUnknownFields {
 		decoder.DisallowUnknownFields()
 	}
-	if err = decoder.Decode(out); err != nil {
-		return err
-	}
-	return nil
+	return decoder.Decode(out)
 }
 
 // Calls an HTTP POST with a JSON body
 func (c *Client) post(url string, body []byte) ([]byte, error) {
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	req, _ := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(body))
 	return c.processRequest(req)
 }
 
@@ -105,10 +102,14 @@ func (c *Client) processRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return nil, errors.New(res.Status)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return body, err
 	}
-	return io.ReadAll(res.Body)
+	if res.StatusCode != 200 {
+		return body, errors.New(res.Status)
+	}
+	return body, nil
 }
 
 // Sets the required headers for calls to the Tesla API

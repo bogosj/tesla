@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 )
 
@@ -13,6 +14,13 @@ type CommandResponse struct {
 		Reason string `json:"reason"`
 		Result bool   `json:"result"`
 	} `json:"response"`
+}
+
+func (response *CommandResponse) Reason() error {
+	if response != nil && !response.Response.Result && response.Response.Reason != "" {
+		return errors.New(response.Response.Reason)
+	}
+	return nil
 }
 
 // AutoParkRequest are the required elements to POST an Autopark/Summon request for the vehicle.
@@ -290,15 +298,24 @@ func (v *Vehicle) OpenTrunk(trunk string) error {
 func (v *Vehicle) sendCommand(url string, reqBody []byte) ([]byte, error) {
 	body, err := v.c.post(url, reqBody)
 	if err != nil {
+		// decode HTTP 500 response
+		if len(body) > 0 && err.Error() == http.StatusText(http.StatusInternalServerError) {
+			var response CommandResponse
+			if err := json.Unmarshal(body, &response); err == nil {
+				if err := response.Reason(); err != nil {
+					return nil, err
+				}
+			}
+		}
 		return nil, err
 	}
 	if len(body) > 0 {
-		response := &CommandResponse{}
-		if err := json.Unmarshal(body, response); err != nil {
+		var response CommandResponse
+		if err := json.Unmarshal(body, &response); err != nil {
 			return nil, err
 		}
-		if !response.Response.Result && response.Response.Reason != "" {
-			return nil, errors.New(response.Response.Reason)
+		if err := response.Reason(); err != nil {
+			return nil, err
 		}
 	}
 	return body, nil
