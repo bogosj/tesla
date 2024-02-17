@@ -2,7 +2,6 @@ package tesla
 
 import (
 	"net/http"
-	"strings"
 
 	"golang.org/x/oauth2"
 )
@@ -22,15 +21,6 @@ func WithTokenSource(ts oauth2.TokenSource) ClientOption {
 func WithClient(client *http.Client) ClientOption {
 	return func(c *Client) error {
 		c.hc = client
-		return nil
-	}
-}
-
-// WithBaseURL provides a method to set the base URL for standard API calls to differ
-// from the default.
-func WithBaseURL(url string) ClientOption {
-	return func(c *Client) error {
-		c.baseURL = strings.TrimRight(url, "/")
 		return nil
 	}
 }
