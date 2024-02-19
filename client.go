@@ -104,7 +104,7 @@ func (c *Client) processRequest(req *http.Request) ([]byte, error) {
 	defer res.Body.Close()
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return body, err
+		return nil, err
 	}
 	if res.StatusCode != 200 {
 		return body, errors.New(res.Status)
