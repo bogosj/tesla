@@ -8,6 +8,7 @@ import (
 type VehiclePartialResponse struct {
 	Color                  interface{} `json:"color"`
 	DisplayName            string      `json:"display_name"`
+	ID                     int64       `json:"id"`
 	OptionCodes            string      `json:"option_codes"`
 	VehicleID              uint64      `json:"vehicle_id"`
 	Vin                    string      `json:"vin"`
@@ -29,6 +30,7 @@ type VehiclePartialResponse struct {
 type Vehicle struct {
 	Color                  interface{} `json:"color"`
 	DisplayName            string      `json:"display_name"`
+	ID                     int64       `json:"id"`
 	OptionCodes            string      `json:"option_codes"`
 	VehicleID              uint64      `json:"vehicle_id"`
 	Vin                    string      `json:"vin"`

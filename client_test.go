@@ -101,24 +101,26 @@ func serveCheck(c func(req *http.Request, body []byte) error) http.HandlerFunc {
 func init() {
 	testMux.HandleFunc("/oauth/token", serveJSON("{\"access_token\": \"ghi789\"}"))
 	testMux.HandleFunc("/api/1/vehicles", serveJSON(VehiclesJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234", serveJSON(VehicleJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/auto_conditioning_start", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/auto_conditioning_stop", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/charge_max_range", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/charge_port_door_open", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/charge_standard", serveJSON(ChargeAlreadySetJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/charge_start", serveJSON(ChargedJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/charge_stop", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/door_lock", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/door_unlock", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/flash_lights", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/honk_horn", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/command/reset_valet_pin", serveJSON(CommandResponseJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/vehicle_data", serveJSON(DataJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/mobile_enabled", serveJSON(TrueJSON))
-	testMux.HandleFunc("/api/1/vehicles/1234/wake_up", serveJSON(WakeupResponseJSON))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/remote_start_drive", func(w http.ResponseWriter, req *http.Request) {
+	const vehicleBase = "/api/1/vehicles/abc123"
+	testMux.HandleFunc(vehicleBase, serveJSON(VehicleJSON))
+	testMux.HandleFunc(vehicleBase+"/command/auto_conditioning_start", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/auto_conditioning_stop", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/charge_max_range", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/charge_port_door_open", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/charge_standard", serveJSON(ChargeAlreadySetJSON))
+	testMux.HandleFunc(vehicleBase+"/command/charge_start", serveJSON(ChargedJSON))
+	testMux.HandleFunc(vehicleBase+"/command/charge_stop", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/door_lock", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/door_unlock", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/flash_lights", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/honk_horn", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/command/reset_valet_pin", serveJSON(CommandResponseJSON))
+	testMux.HandleFunc(vehicleBase+"/vehicle_data", serveJSON(DataJSON))
+	testMux.HandleFunc(vehicleBase+"/mobile_enabled", serveJSON(TrueJSON))
+	testMux.HandleFunc(vehicleBase+"/wake_up", serveJSON(WakeupResponseJSON))
+
+	testMux.HandleFunc(vehicleBase+"/command/remote_start_drive", func(w http.ResponseWriter, req *http.Request) {
 		if err := req.ParseForm(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -130,28 +132,28 @@ func init() {
 		serveJSON(CommandResponseJSON)
 	})
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/set_temps", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/set_temps", serveCheck(func(req *http.Request, body []byte) error {
 		if string(body) != `{"driver_temp":"72","passenger_temp":"72"}` {
 			return fmt.Errorf("unexpected body %s", body)
 		}
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/set_charge_limit", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/set_charge_limit", serveCheck(func(req *http.Request, body []byte) error {
 		if string(body) != `{"percent": 50}` {
 			return fmt.Errorf("unexpected body %s", body)
 		}
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/set_charging_amps", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/set_charging_amps", serveCheck(func(req *http.Request, body []byte) error {
 		if string(body) != `{"charging_amps": 12}` {
 			return fmt.Errorf("unexpected body %s", body)
 		}
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/autopark_request", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/autopark_request", serveCheck(func(req *http.Request, body []byte) error {
 		apr := &AutoParkRequest{}
 		if err := json.Unmarshal(body, apr); err != nil {
 			return err
@@ -173,7 +175,7 @@ func init() {
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/trigger_homelink", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/trigger_homelink", serveCheck(func(req *http.Request, body []byte) error {
 		apr := &AutoParkRequest{}
 		if err := json.Unmarshal(body, apr); err != nil {
 			return err
@@ -187,7 +189,7 @@ func init() {
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/sun_roof_control", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/sun_roof_control", serveCheck(func(req *http.Request, body []byte) error {
 		switch string(body) {
 		case `{"state": "vent", "percent":0}`:
 		case `{"state": "open", "percent":0}`:
@@ -199,7 +201,7 @@ func init() {
 		return nil
 	}))
 
-	testMux.HandleFunc("/api/1/vehicles/1234/command/set_sentry_mode", serveCheck(func(req *http.Request, body []byte) error {
+	testMux.HandleFunc(vehicleBase+"/command/set_sentry_mode", serveCheck(func(req *http.Request, body []byte) error {
 		switch string(body) {
 		case `{"on":"true"}`:
 		default:
