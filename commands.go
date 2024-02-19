@@ -14,11 +14,16 @@ type CommandResponse struct {
 		Reason string `json:"reason"`
 		Result bool   `json:"result"`
 	} `json:"response"`
+	Error string `json:"error"`
 }
 
 func (response *CommandResponse) Reason() error {
-	if response != nil && !response.Response.Result && response.Response.Reason != "" {
-		return errors.New(response.Response.Reason)
+	if response != nil {
+		if !response.Response.Result && response.Response.Reason != "" {
+			return errors.New(response.Response.Reason)
+		}
+	} else if response.Error != "" {
+		return errors.New(response.Error)
 	}
 	return nil
 }
@@ -157,7 +162,7 @@ func (v *Vehicle) SetChargeLimitMax() error {
 func (v *Vehicle) SetChargeLimit(percent int) error {
 	apiURL := v.commandPath("set_charge_limit")
 	payload := `{"percent": ` + strconv.Itoa(percent) + `}`
-	_, err := v.c.post(apiURL, []byte(payload))
+	_, err := v.sendCommand(apiURL, []byte(payload))
 	return err
 }
 
@@ -165,7 +170,7 @@ func (v *Vehicle) SetChargeLimit(percent int) error {
 func (v *Vehicle) SetChargingAmps(amps int) error {
 	apiURL := v.commandPath("set_charging_amps")
 	payload := `{"charging_amps": ` + strconv.Itoa(amps) + `}`
-	_, err := v.c.post(apiURL, []byte(payload))
+	_, err := v.sendCommand(apiURL, []byte(payload))
 	return err
 }
 
@@ -226,7 +231,7 @@ func (v *Vehicle) SetTemperature(driver float64, passenger float64) error {
 	if err != nil {
 		return err
 	}
-	_, err = v.c.post(apiURL, b)
+	_, err = v.sendCommand(apiURL, b)
 	return err
 }
 
@@ -248,7 +253,7 @@ func (v *Vehicle) StopAirConditioning() error {
 func (v *Vehicle) SetSeatHeater(heater int, level int) error {
 	url := v.commandPath("remote_seat_heater_request")
 	payload := fmt.Sprintf(`{"heater":%d, "level":%d}`, heater, level)
-	_, err := v.c.post(url, []byte(payload))
+	_, err := v.sendCommand(url, []byte(payload))
 	return err
 }
 
@@ -256,7 +261,7 @@ func (v *Vehicle) SetSeatHeater(heater int, level int) error {
 func (v *Vehicle) SetSteeringWheelHeater(on bool) error {
 	url := v.commandPath("remote_steering_wheel_heater_request")
 	payload := fmt.Sprintf(`{"on":%t}`, on)
-	_, err := v.c.post(url, []byte(payload))
+	_, err := v.sendCommand(url, []byte(payload))
 	return err
 }
 
@@ -265,7 +270,7 @@ func (v *Vehicle) SetSteeringWheelHeater(on bool) error {
 func (v *Vehicle) MovePanoRoof(state string, percent int) error {
 	apiURL := v.commandPath("sun_roof_control")
 	payload := `{"state": "` + state + `", "percent":` + strconv.Itoa(percent) + `}`
-	_, err := v.c.post(apiURL, []byte(payload))
+	_, err := v.sendCommand(apiURL, []byte(payload))
 	return err
 }
 
@@ -275,7 +280,7 @@ func (v *Vehicle) MovePanoRoof(state string, percent int) error {
 func (v *Vehicle) WindowControl(command string, lat, lon float64) error {
 	apiURL := v.commandPath("window_control")
 	payload := fmt.Sprintf(`{"command":"%s", "lat": %f, "lon": %f}`, command, lat, lon)
-	_, err := v.c.post(apiURL, []byte(payload))
+	_, err := v.sendCommand(apiURL, []byte(payload))
 	return err
 }
 
@@ -290,7 +295,7 @@ func (v *Vehicle) Start(password string) error {
 func (v *Vehicle) OpenTrunk(trunk string) error {
 	apiURL := v.commandPath("actuate_trunk")
 	payload := `{"which_trunk": "` + trunk + `"}`
-	_, err := v.c.post(apiURL, []byte(payload))
+	_, err := v.sendCommand(apiURL, []byte(payload))
 	return err
 }
 
