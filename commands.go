@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 )
 
@@ -18,10 +17,8 @@ type CommandResponse struct {
 }
 
 func (response *CommandResponse) Reason() error {
-	if response != nil {
-		if !response.Response.Result && response.Response.Reason != "" {
-			return errors.New(response.Response.Reason)
-		}
+	if !response.Response.Result && response.Response.Reason != "" {
+		return errors.New(response.Response.Reason)
 	} else if response.Error != "" {
 		return errors.New(response.Error)
 	}
@@ -303,12 +300,12 @@ func (v *Vehicle) OpenTrunk(trunk string) error {
 func (v *Vehicle) sendCommand(url string, reqBody []byte) ([]byte, error) {
 	body, err := v.c.post(url, reqBody)
 	if err != nil {
-		// decode HTTP 500 response
-		if len(body) > 0 && err.Error() == http.StatusText(http.StatusInternalServerError) {
+		// decode non-HTTP 200 response
+		if len(body) > 0 {
 			var response CommandResponse
-			if err := json.Unmarshal(body, &response); err == nil {
-				if err := response.Reason(); err != nil {
-					return nil, err
+			if errJson := json.Unmarshal(body, &response); errJson == nil {
+				if errReason := response.Reason(); errReason != nil {
+					return nil, fmt.Errorf("%s: %w", err, errReason)
 				}
 			}
 		}
