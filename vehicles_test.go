@@ -50,3 +50,21 @@ func TestVehicle_CommandPath(t *testing.T) {
 		So(v.commandPath("honk_horn"), ShouldEndWith, "/api/1/vehicles/1/command/honk_horn")
 	})
 }
+
+func TestVehicle_WithClient(t *testing.T) {
+	ts := serveHTTP(t)
+	defer ts.Close()
+
+	tc := NewTestClient(ts)
+	v := &Vehicle{
+		c: tc,
+	}
+
+	Convey("Should clone vehicle", t, func() {
+		tc2 := NewTestClient(ts)
+		v2 := v.WithClient(tc2)
+		So(v.c, ShouldEqual, tc)
+		So(v2.c, ShouldEqual, tc2)
+		So(v.c, ShouldNotEqual, v2.c)
+	})
+}

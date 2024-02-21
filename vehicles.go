@@ -120,6 +120,14 @@ func (c *Client) Vehicle(vin string) (*Vehicle, error) {
 	return resp.Response, nil
 }
 
+// WithClient returns a copy of the vehicle with new client.
+// Use e.g. when creating a secondary client for executing signed commands using Tesla Proxy.
+func (v *Vehicle) WithClient(c *Client) *Vehicle {
+	vehicle := *v
+	vehicle.c = c
+	return &vehicle
+}
+
 func (v *Vehicle) basePath() string {
 	return strings.Join([]string{v.c.baseURL, "vehicles", v.Vin}, "/")
 }
