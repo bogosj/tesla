@@ -31,6 +31,7 @@ type EnergySiteStatus struct {
 	BatteryType       string  `json:"battery_type"`
 	BackupCapable     bool    `json:"backup_capable"`
 	BatteryPower      int64   `json:"battery_power"`
+	StormModeEnabled  bool    `json:"storm_mode_enabled"`
 
 	c *Client
 }
@@ -135,6 +136,25 @@ func (s *EnergySite) historyPath(period HistoryPeriod) string {
 	v.Set("period", string(period))
 
 	return strings.Join([]string{s.basePath(), "history"}, "/") + fmt.Sprintf("?%s", v.Encode())
+}
+
+func (s *EnergySite) SetStormMode(enabled bool) error {
+	url := s.basePath() + "/storm_mode"
+	payload := fmt.Sprintf(`{"enabled":%t}`, enabled)
+	body, err := s.sendCommand(url, []byte(payload))
+	if err != nil {
+		return err
+	}
+	response := SiteCommandResponse{}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return err
+	}
+
+	if response.Response.Code != 201 {
+		return fmt.Errorf("setStormMode failed: %s", response.Response.Message)
+	}
+
+	return nil
 }
 
 func (s *EnergySite) SetBatteryReserve(percent uint64) error {
