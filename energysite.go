@@ -63,6 +63,24 @@ type EnergySiteHistoryTimeSeries struct {
 	ConsumerEnergyImportedFromGenerator float64   `json:"consumer_energy_imported_from_generator"`
 }
 
+type LiveStatus struct {
+	BatteryPower      int32     `json:"battery_power"`
+	GeneratorPower    int32     `json:"generator_power"`
+	GridPower         int32     `json:"grid_power"`
+	GridStatus        string    `json:"grid_status"`
+	IslandStatus      string    `json:"island_status"`
+	LoadPower         int32     `json:"load_power"`
+	PercentageCharged float32   `json:"percentage_charged"`
+	SolarPower        int32     `json:"solar_power"`
+	StormModeActive   bool      `json:"storm_mode_active"`
+	Timestamp         time.Time `json:"timestamp"`
+	// WallConnectors []WallConnector `json:"wallconnectors"` Commented out as I don't have one to test
+}
+
+type LiveStatusResponse struct {
+	Response LiveStatus `json:"response"`
+}
+
 type SiteInfoResponse struct {
 	Response *EnergySite `json:"response"`
 }
@@ -103,6 +121,14 @@ func (s *EnergySite) EnergySiteStatus() (*EnergySiteStatus, error) {
 	return siteStatusResponse.Response, nil
 }
 
+func (s *EnergySite) LiveStatus() (*LiveStatus, error) {
+	liveStatusResponse := &LiveStatusResponse{}
+	if err := s.c.getJSON(s.liveStatusPath(), liveStatusResponse); err != nil {
+		return nil, err
+	}
+	return &liveStatusResponse.Response, nil
+}
+
 type HistoryPeriod string
 
 const (
@@ -127,6 +153,10 @@ func (s *EnergySite) basePath() string {
 
 func (s *EnergySite) statusPath() string {
 	return strings.Join([]string{s.basePath(), "site_status"}, "/")
+}
+
+func (s *EnergySite) liveStatusPath() string {
+	return s.basePath() + "/live_status"
 }
 
 func (s *EnergySite) historyPath(period HistoryPeriod) string {
