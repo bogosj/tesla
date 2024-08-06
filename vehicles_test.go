@@ -32,7 +32,7 @@ func TestVehicle(t *testing.T) {
 	client := NewTestClient(ts)
 
 	Convey("Should get vehicle", t, func() {
-		vehicle, err := client.Vehicle(1234)
+		vehicle, err := client.Vehicle("abc123")
 		So(err, ShouldBeNil)
 		So(vehicle.DisplayName, ShouldEqual, "Macak")
 		So(vehicle.CalendarEnabled, ShouldBeTrue)
@@ -44,9 +44,27 @@ func TestVehicle_CommandPath(t *testing.T) {
 	defer ts.Close()
 
 	client := NewTestClient(ts)
-	v := &Vehicle{ID: 1, c: client}
+	v := &Vehicle{Vin: "1", c: client}
 
 	Convey("Should have a URL with /command/", t, func() {
 		So(v.commandPath("honk_horn"), ShouldEndWith, "/api/1/vehicles/1/command/honk_horn")
+	})
+}
+
+func TestVehicle_WithClient(t *testing.T) {
+	ts := serveHTTP(t)
+	defer ts.Close()
+
+	tc := NewTestClient(ts)
+	v := &Vehicle{
+		c: tc,
+	}
+
+	Convey("Should clone vehicle", t, func() {
+		tc2 := NewTestClient(ts)
+		v2 := v.WithClient(tc2)
+		So(v.c, ShouldEqual, tc)
+		So(v2.c, ShouldEqual, tc2)
+		So(v.c, ShouldNotEqual, v2.c)
 	})
 }
