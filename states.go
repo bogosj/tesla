@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net/url"
 )
 
 // ChargeState contains the current charge states that exist within the vehicle.
@@ -309,7 +310,13 @@ func stateError(sr *VehicleData) error {
 // A utility function to fetch the appropriate state of the vehicle
 func (c *Client) fetchState(id int64) (*VehicleData, error) {
 	var res VehicleData
-	path := strings.Join([]string{c.baseURL, "vehicles", strconv.FormatInt(id, 10), "vehicle_data"}, "/")
+	endpoints := []string{"charge_state", "climate_state", "closures_state", "drive_state", "gui_settings", "location_data", "vehicle_config", "vehicle_state"}
+	path := strings.Join([]string{
+		c.baseURL,
+		"vehicles",
+		strconv.FormatInt(id, 10),
+		"vehicle_data?endpoints=" + url.QueryEscape(strings.Join(endpoints, ";")),
+	}, "/")
 	if err := c.getJSON(path, &res); err != nil {
 		return nil, err
 	}
