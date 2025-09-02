@@ -15,6 +15,11 @@ type CommandResponse struct {
 	} `json:"response"`
 }
 
+// Some API end-points just respond with {"response":""}
+type CommandEmptyResponse struct {
+	Response string `json:"response"`
+}
+
 // AutoParkRequest are the required elements to POST an Autopark/Summon request for the vehicle.
 type AutoParkRequest struct {
 	VehicleID uint64  `json:"vehicle_id,omitempty"`
