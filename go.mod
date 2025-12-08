@@ -1,13 +1,13 @@
 module github.com/bogosj/tesla
 
-go 1.18
+go 1.24.0
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
 	github.com/manifoldco/promptui v0.9.0
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/smartystreets/goconvey v1.8.1
-	golang.org/x/oauth2 v0.23.0
+	golang.org/x/oauth2 v0.34.0
 )
 
 require (
