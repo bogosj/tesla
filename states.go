@@ -224,7 +224,7 @@ type MobileEnabledResponse struct {
 // MobileEnabled returns if the vehicle is mobile enabled for Tesla API control
 func (v *Vehicle) MobileEnabled() (bool, error) {
 	r := &MobileEnabledResponse{}
-	if err := v.c.getJSON(v.c.baseURL+"/vehicles/"+strconv.FormatInt(v.ID, 10)+"/mobile_enabled", r); err != nil {
+	if err := v.c.getJSON(v.c.baseURL+"/vehicles/"+v.Vin+"/mobile_enabled", r); err != nil {
 		return false, err
 	}
 	return r.Bool, nil
@@ -288,7 +288,7 @@ type NearbyChargingSitesResponse struct {
 // NearbyChargingSites returns the charging sites near the vehicle.
 func (v *Vehicle) NearbyChargingSites() (*NearbyChargingSitesResponse, error) {
 	resp := &NearbyChargingSitesResponse{}
-	path := strings.Join([]string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10), "nearby_charging_sites"}, "/")
+	path := strings.Join([]string{v.c.baseURL, "vehicles", v.Vin, "nearby_charging_sites"}, "/")
 	if err := v.c.getJSON(path, resp); err != nil {
 		return nil, err
 	}
@@ -307,9 +307,9 @@ func stateError(sr *VehicleData) error {
 }
 
 // A utility function to fetch the appropriate state of the vehicle
-func (c *Client) fetchState(id int64) (*VehicleData, error) {
+func (c *Client) fetchState(vin string) (*VehicleData, error) {
 	var res VehicleData
-	path := strings.Join([]string{c.baseURL, "vehicles", strconv.FormatInt(id, 10), "vehicle_data"}, "/")
+	path := strings.Join([]string{c.baseURL, "vehicles", vin, "vehicle_data"}, "/")
 	if err := c.getJSON(path, &res); err != nil {
 		return nil, err
 	}
@@ -321,5 +321,5 @@ func (c *Client) fetchState(id int64) (*VehicleData, error) {
 
 // Data : Get data of the vehicle (calling this will not permit the car to sleep)
 func (v Vehicle) Data() (*VehicleData, error) {
-	return v.c.fetchState(v.ID)
+	return v.c.fetchState(v.Vin)
 }

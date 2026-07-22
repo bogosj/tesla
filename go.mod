@@ -1,4 +1,4 @@
-module github.com/bogosj/tesla
+module github.com/evcc-io/tesla-proxy-client
 
 go 1.18
 

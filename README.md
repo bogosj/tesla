@@ -22,8 +22,6 @@ go get github.com/bogosj/tesla
 
 ## Usage
 
-Examples can be found in the [/examples project directory](examples).
-
 ### OAuth Token
 
 One way to acquire an OAuth token is to run cmd/login.

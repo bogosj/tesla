@@ -1,7 +1,6 @@
 package tesla
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -112,17 +111,25 @@ func (c *Client) Vehicles() ([]*Vehicle, error) {
 }
 
 // Vehicle fetches the vehicle by ID associated to a Tesla account via the API.
-func (c *Client) Vehicle(vehicleID int64) (*Vehicle, error) {
+func (c *Client) Vehicle(vin string) (*Vehicle, error) {
 	resp := &VehicleResponse{}
-	if err := c.getJSON(c.baseURL+"/vehicles/"+strconv.FormatInt(vehicleID, 10), resp); err != nil {
+	if err := c.getJSON(c.baseURL+"/vehicles/"+vin, resp); err != nil {
 		return nil, err
 	}
 	resp.Response.c = c
 	return resp.Response, nil
 }
 
+// WithClient returns a copy of the vehicle with new client.
+// Use e.g. when creating a secondary client for executing signed commands using Tesla Proxy.
+func (v *Vehicle) WithClient(c *Client) *Vehicle {
+	vehicle := *v
+	vehicle.c = c
+	return &vehicle
+}
+
 func (v *Vehicle) basePath() string {
-	return strings.Join([]string{v.c.baseURL, "vehicles", strconv.FormatInt(v.ID, 10)}, "/")
+	return strings.Join([]string{v.c.baseURL, "vehicles", v.Vin}, "/")
 }
 
 func (v *Vehicle) commandPath(command string) string {
